@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matrí-67</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #0f0f1a;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px 10px;
+  color: white;
+  overflow-x: hidden;
+}
+
+/* TITLE */
+.title {
+  font-size: 3.5rem;
+  font-weight: 900;
+  letter-spacing: -3px;
+  background: linear-gradient(135deg, #f7971e, #ffd200);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.subtitle {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 16px;
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+/* HUD */
+.hud {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 18px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.hud-box {
+  background: #16213e;
+  border: 1px solid #2a2a4a;
+  border-radius: 12px;
+  padding: 8px 18px;
+  text-align: center;
+  min-width: 90px;
+}
+.hud-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  color: #555;
+  letter-spacing: 1px;
+  margin-bottom: 2px;
+}
+.hud-value {
+  font-size: 1.6rem;
+  font-weight: 900;
+  line-height: 1;
+}
+#score-val { color: #ffd200; }
+#lives-val { color: #f87171; }
+#timer-val { color: #4ade80; font-variant-numeric: tabular-nums; }
+#timer-box.warning #timer-val { color: #f87171; animation: timerPulse 0.5s infinite alternate; }
+#timer-box.urgent  #timer-val { color: #ff2222; animation: timerPulse 0.25s infinite alternate; }
+
+@keyframes timerPulse {
+  from { transform: scale(1);    opacity: 1; }
+  to   { transform: scale(1.15); opacity: 0.7; }
+}
+
+/* PLATE */
+.plate {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  background: #f7f7e0;
+  border: 3px solid #1a1a2a;
+  border-radius: 8px;
+  margin-bottom: 18px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5), inset 0 0 8px rgba(0,0,0,0.1);
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  overflow: hidden;
+  user-select: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.plate.shake { animation: shake-plate 0.45s; }
+@keyframes shake-plate {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-9px) rotate(-1deg); }
+  40% { transform: translateX(9px) rotate(1deg); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+.plate.flash-ok { animation: flash-ok 0.6s; }
+@keyframes flash-ok {
+  0%   { box-shadow: 0 0 0 rgba(74,222,128,0); }
+  50%  { box-shadow: 0 0 40px rgba(74,222,128,0.95); }
+  100% { box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+}
+.plate-eu {
+  background: #003399;
+  color: #ffcc00;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 6px;
+  width: 38px;
+  font-weight: 700;
+}
+.plate-eu .stars { font-size: 0.55rem; line-height: 1; letter-spacing: -1px; }
+.plate-eu .country { font-size: 1.1rem; font-weight: 900; line-height: 1; }
+.plate-content {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 22px;
+  font-size: 3rem;
+  font-weight: 900;
+  color: #1a1a2a;
+  letter-spacing: 2px;
+}
+.plate-digit {
+  display: inline-block;
+  min-width: 0.7em;
+  text-align: center;
+  transition: opacity 0.25s, transform 0.25s, color 0.25s;
+}
+.plate-digit.used {
+  opacity: 0.18;
+  transform: scale(0.85);
+}
+.plate-sep {
+  width: 4px;
+  height: 1.4em;
+  background: #1a1a2a;
+  margin: 0 8px;
+  border-radius: 1px;
+}
+.plate-letters {
+  letter-spacing: 3px;
+}
+.plate-letters span { display: inline-block; }
+.plate-letters.funny span {
+  animation: bounce-letter 0.65s ease-in-out infinite;
+  color: #cc0066;
+  text-shadow: 0 0 6px rgba(255, 210, 0, 0.4);
+}
+.plate-letters.funny span:nth-child(1) { animation-delay: 0s;    }
+.plate-letters.funny span:nth-child(2) { animation-delay: 0.13s; }
+.plate-letters.funny span:nth-child(3) { animation-delay: 0.26s; }
+@keyframes bounce-letter {
+  0%, 100% { transform: translateY(0)    rotate(0deg);  color: #cc0066; }
+  50%      { transform: translateY(-8px) rotate(-7deg); color: #f7971e; }
+}
+
+/* funny callout above the plate */
+.funny-callout {
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%) scale(0);
+  background: #ffd200;
+  color: #0f0f1a;
+  font-size: 0.85rem;
+  font-weight: 900;
+  padding: 4px 12px;
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(255, 210, 0, 0.5);
+  white-space: nowrap;
+  pointer-events: none;
+  letter-spacing: 1px;
+  animation: callout-pop 1.6s ease-out forwards;
+}
+@keyframes callout-pop {
+  0%   { transform: translateX(-50%) scale(0)    rotate(-15deg); opacity: 0; }
+  20%  { transform: translateX(-50%) scale(1.2)  rotate(6deg);   opacity: 1; }
+  35%  { transform: translateX(-50%) scale(0.95) rotate(-3deg);  opacity: 1; }
+  50%  { transform: translateX(-50%) scale(1.05) rotate(2deg);   opacity: 1; }
+  100% { transform: translateX(-50%) scale(1)    rotate(0);      opacity: 0; }
+}
+
+/* EXPRESSION */
+.expr-wrap {
+  background: #16213e;
+  border: 2px solid #2a2a4a;
+  border-radius: 14px;
+  padding: 12px 22px;
+  margin-bottom: 8px;
+  min-width: 280px;
+  text-align: center;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.expr-wrap.ok  { border-color: #4ade80; box-shadow: 0 0 18px rgba(74,222,128,0.45); }
+.expr-wrap.bad { border-color: #f87171; box-shadow: 0 0 18px rgba(248,113,113,0.45); }
+.expr-text {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #ffd200;
+  font-family: 'Courier New', monospace;
+  min-height: 1.6rem;
+  line-height: 1.2;
+  letter-spacing: 1px;
+}
+.expr-text .placeholder { color: #444; font-weight: 400; font-style: italic; font-size: 1rem; }
+.expr-result {
+  font-size: 0.85rem;
+  color: #888;
+  margin-top: 4px;
+  letter-spacing: 1px;
+  min-height: 1rem;
+}
+
+/* SOLUTION HINT */
+.solution-hint {
+  margin-bottom: 12px;
+  color: #f87171;
+  font-size: 0.92rem;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  min-height: 1.2rem;
+  text-align: center;
+  max-width: 92vw;
+}
+
+/* CONTROLS */
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.btn-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.kbtn {
+  background: #1f2a4a;
+  border: 2px solid #2a2a4a;
+  color: white;
+  border-radius: 12px;
+  padding: 0;
+  font-size: 1.4rem;
+  font-weight: 900;
+  cursor: pointer;
+  min-width: 56px;
+  height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.08s, background 0.15s, border-color 0.15s, opacity 0.2s;
+  user-select: none;
+  font-family: inherit;
+}
+.kbtn:hover:not(:disabled) { transform: translateY(-2px); background: #28335a; }
+.kbtn:active:not(:disabled) { transform: translateY(0); }
+.kbtn:disabled { opacity: 0.25; cursor: not-allowed; }
+.kbtn.dig    { background: #4f46e5; border-color: #6b62f0; font-size: 1.6rem; }
+.kbtn.dig:hover:not(:disabled)   { background: #6259f0; }
+.kbtn.op     { background: #2a2a4a; }
+.kbtn.split  { background: #ca8a04; border-color: #e0a312; color: #0f0f1a; font-size: 1.6rem; }
+.kbtn.split:hover:not(:disabled) { background: #e0a312; }
+.kbtn.clear  { background: #4b5563; border-color: #6b7280; }
+.kbtn.submit { background: #4ade80; border-color: #6dec9a; color: #0f0f1a; font-size: 1rem; padding: 0 18px; min-width: 96px; }
+.kbtn.submit:hover:not(:disabled) { background: #6dec9a; }
+.kbtn.nope   { background: #dc2626; border-color: #f04444; font-size: 0.95rem; padding: 0 14px; min-width: 110px; }
+.kbtn.nope:hover:not(:disabled)   { background: #f04444; }
+
+/* hide ×, ÷ in easy mode */
+body.easy .kbtn.op[data-op="*"],
+body.easy .kbtn.op[data-op="/"] { display: none; }
+
+/* difficulty badge */
+.diff-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+.diff-badge.easy { background: rgba(74,222,128,0.15); color: #4ade80; border: 1px solid #4ade80; }
+.diff-badge.hard { background: rgba(220,38,38,0.18); color: #f87171; border: 1px solid #f04444; }
+.diff-badge .menu-link {
+  margin-left: 8px;
+  color: inherit;
+  opacity: 0.7;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.diff-badge .menu-link:hover { opacity: 1; }
+
+/* difficulty buttons in menu */
+.diff-btn {
+  border: 2px solid;
+  border-radius: 14px;
+  padding: 14px 22px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 900;
+  text-align: center;
+  transition: transform 0.1s;
+  min-width: 130px;
+}
+.diff-btn:hover { transform: translateY(-2px) scale(1.03); }
+.diff-btn .big   { font-size: 1.25rem; line-height: 1.1; }
+.diff-btn .small { font-size: 0.72rem; font-weight: 500; opacity: 0.85; margin-top: 4px; letter-spacing: 0.5px; }
+.diff-btn.easy { background: #4ade80; color: #0f0f1a; border-color: #6dec9a; }
+.diff-btn.hard { background: #dc2626; color: white;   border-color: #f04444; }
+
+/* OVERLAY */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200;
+  padding: 20px;
+}
+.overlay-box {
+  background: #16213e;
+  border: 2px solid #ffd200;
+  border-radius: 20px;
+  padding: 30px 36px;
+  text-align: center;
+  max-width: 440px;
+  width: 100%;
+}
+.overlay-box h2 { font-size: 2.4rem; color: #ffd200; margin-bottom: 8px; line-height: 1.1; }
+.overlay-box p  { color: #aaa; margin: 6px 0; line-height: 1.5; font-size: 0.95rem; }
+.overlay-box .score-big { font-size: 2rem; color: white; font-weight: 900; margin: 14px 0; }
+.overlay-box .btn {
+  margin-top: 14px;
+  padding: 13px 34px;
+  background: #ffd200;
+  color: #0f0f1a;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.overlay-box .btn:hover { transform: scale(1.05); }
+.overlay-box ul {
+  list-style: none;
+  text-align: left;
+  margin: 14px 0 6px 0;
+  color: #aaa;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+.overlay-box ul li::before { content: "▸ "; color: #ffd200; }
+
+/* FLOAT FEEDBACK */
+.float-msg {
+  position: fixed;
+  pointer-events: none;
+  font-size: 1.4rem;
+  font-weight: 900;
+  z-index: 100;
+  animation: floatUp 1s forwards;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+  transform: translate(-50%, 0);
+  white-space: nowrap;
+}
+.float-msg.good { color: #4ade80; }
+.float-msg.bad  { color: #f87171; }
+@keyframes floatUp {
+  0%   { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -90px) scale(1.4); }
+}
+
+.instr {
+  margin-top: 12px;
+  color: #444;
+  font-size: 0.78rem;
+  text-align: center;
+  max-width: 460px;
+  line-height: 1.6;
+}
+.instr strong { color: #888; }
+
+@media (max-width: 520px) {
+  .title { font-size: 2.5rem; }
+  .plate-content { font-size: 2.4rem; padding: 12px 14px; gap: 2px; }
+  .plate-eu { width: 30px; }
+  .kbtn { min-width: 50px; height: 50px; font-size: 1.2rem; }
+  .kbtn.dig { font-size: 1.4rem; }
+  .kbtn.submit { font-size: 0.95rem; min-width: 84px; }
+  .kbtn.nope { font-size: 0.85rem; min-width: 96px; }
+}
+</style>
+</head>
+<body>
+
+<h1 class="title">Matrí-67</h1>
+<p class="subtitle">EL JOC DE LES MATRÍCULES</p>
+
+<div class="hud">
+  <div class="hud-box">
+    <div class="hud-label">Punts</div>
+    <div class="hud-value"><span id="score-val">0</span><span style="color:#444;font-size:1rem">/67</span></div>
+  </div>
+  <div class="hud-box" id="timer-box">
+    <div class="hud-label">Temps</div>
+    <div class="hud-value" id="timer-val">10</div>
+  </div>
+  <div class="hud-box">
+    <div class="hud-label">Vides</div>
+    <div class="hud-value" id="lives-val">10</div>
+  </div>
+</div>
+
+<div id="diff-badge" class="diff-badge hard" style="display:none"></div>
+
+<div class="plate" id="plate">
+  <div class="plate-eu">
+    <span class="stars">★ ★ ★</span>
+    <span class="country">E</span>
+  </div>
+  <div class="plate-content">
+    <span class="plate-digit" data-i="0">0</span>
+    <span class="plate-digit" data-i="1">0</span>
+    <span class="plate-digit" data-i="2">0</span>
+    <span class="plate-digit" data-i="3">0</span>
+    <span class="plate-sep"></span>
+    <span class="plate-letters" id="plate-letters">BCD</span>
+  </div>
+</div>
+
+<div class="expr-wrap" id="expr-wrap">
+  <div class="expr-text" id="expr-text"><span class="placeholder">Construeix una expressió…</span></div>
+  <div class="expr-result" id="expr-result">&nbsp;</div>
+</div>
+
+<div class="solution-hint" id="solution-hint">&nbsp;</div>
+
+<div class="controls">
+  <div class="btn-row" id="dig-row">
+    <button class="kbtn dig" data-i="0">0</button>
+    <button class="kbtn dig" data-i="1">0</button>
+    <button class="kbtn dig" data-i="2">0</button>
+    <button class="kbtn dig" data-i="3">0</button>
+  </div>
+  <div class="btn-row">
+    <button class="kbtn op" data-op="+">+</button>
+    <button class="kbtn op" data-op="-">−</button>
+    <button class="kbtn op" data-op="*">×</button>
+    <button class="kbtn op" data-op="/">÷</button>
+    <button class="kbtn split" data-op="|" title="Separa l'expressió per fer 6 i 7 per separat">│</button>
+  </div>
+  <div class="btn-row">
+    <button class="kbtn clear" id="clear-btn" title="Esborra l'expressió">⟲</button>
+    <button class="kbtn submit" id="submit-btn">Comprova</button>
+    <button class="kbtn nope" id="nope-btn">Impossible</button>
+  </div>
+</div>
+
+<p class="instr">
+  Combina els dígits de la matrícula amb +, −, ×, ÷ per arribar a <strong>67</strong>,
+  o bé fes <strong>6</strong> i <strong>7</strong> per separat amb el botó <strong>│</strong>.<br>
+  No cal usar-los tots. Si no hi ha solució, prem <strong>Impossible</strong>.<br>
+  Arriba a <strong>67 punts</strong> per guanyar (10 vides).
+</p>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────
+const TARGET_TOTAL = 67;
+const MAX_LIVES    = 10;
+const CONSONANTS   = 'BCDFGHJKLMNPRSTVWXYZ';
+const SOLN_CACHE   = new Map();
+const FUNNY_PROB   = 0.25;
+const FUNNY_PLATES = [
+  'BRO','SIS','WTF','LOL','OMG','FBI','CIA','KGB','WOW','FUN',
+  'BOT','WIN','GOD','DAD','MOM','DOG','CAT','YOU','ASS','FAQ',
+  'GIF','USB','GYM','PDF','UFO','BAE','BOO','MEH','HMM','SOS',
+  'SUS','OOF','POW','ZAP','BAM','BYE','HAH','HEH','ICE','FAN',
+  'MAD','NEW','OWL','PRO','RIP','SEX','SIR','TAX','TIP','TOY',
+  'USA','VIP','WAR','YAY','YEP','MIX','HEY','TBH','IDK','FYI'
+];
+const DIFFICULTY = {
+  easy: { time: 15, ops: ['+','-'],         label: 'Fàcil',   keys: '+ −',     desc: 'Només sumes i restes' },
+  hard: { time: 10, ops: ['+','-','*','/'], label: 'Difícil', keys: '+ − × ÷', desc: 'Totes les operacions' }
+};
+let difficulty = 'hard';
+
+// ── STATE ─────────────────────────────────────────────────────
+let plate = { digits: [0,0,0,0], letters: 'BCD', solvable: false, solution: null };
+let score = 0;
+let lives = MAX_LIVES;
+let timeLeft = DIFFICULTY.hard.time;
+let timerInterval = null;
+let gameRunning = false;
+let expression = []; // tokens: {type:'digit',i,val} | {type:'op',op} | {type:'split'}
+let busy = false;    // lock during transitions
+
+// ── ARITHMETIC / SOLVER ───────────────────────────────────────
+function permute(arr) {
+  if (arr.length <= 1) return [arr.slice()];
+  const out = [];
+  for (let i = 0; i < arr.length; i++) {
+    const rest = arr.slice(0,i).concat(arr.slice(i+1));
+    for (const p of permute(rest)) out.push([arr[i], ...p]);
+  }
+  return out;
+}
+
+function genOps(n, ops) {
+  let acc = [[]];
+  for (let k = 0; k < n; k++) {
+    const next = [];
+    for (const a of acc) for (const o of ops) next.push([...a, o]);
+    acc = next;
+  }
+  return acc;
+}
+
+function evalExpr(nums, ops) {
+  const n = nums.slice(), o = ops.slice();
+  let i = 0;
+  while (i < o.length) {
+    if (o[i] === '*' || o[i] === '/') {
+      const a = n[i], b = n[i+1];
+      if (o[i] === '/') {
+        if (b === 0) return null;
+        if (a % b !== 0) return null;
+        n[i] = a / b;
+      } else n[i] = a * b;
+      n.splice(i+1, 1);
+      o.splice(i, 1);
+    } else i++;
+  }
+  let r = n[0];
+  for (let j = 0; j < o.length; j++) {
+    r = o[j] === '+' ? r + n[j+1] : r - n[j+1];
+  }
+  return r;
+}
+
+function findCombo(digits, target) {
+  const allowed = DIFFICULTY[difficulty].ops;
+  for (const perm of permute(digits)) {
+    for (const ops of genOps(perm.length - 1, allowed)) {
+      if (evalExpr(perm, ops) === target) return { nums: perm, ops };
+    }
+  }
+  return null;
+}
+
+function solve(digits) {
+  const key = difficulty + ':' + digits.slice().sort().join(',');
+  if (SOLN_CACHE.has(key)) return SOLN_CACHE.get(key);
+  const n = digits.length;
+  // Direct 67: try any non-empty subset
+  for (let mask = 1; mask < (1 << n); mask++) {
+    const sub = [];
+    for (let i = 0; i < n; i++) if (mask & (1 << i)) sub.push(digits[i]);
+    const r = findCombo(sub, 67);
+    if (r) {
+      const result = { type: 'direct', nums: r.nums, ops: r.ops };
+      SOLN_CACHE.set(key, result);
+      return result;
+    }
+  }
+  // Partition 6 / 7: assign each digit to A, B, or neither
+  const total = Math.pow(3, n);
+  for (let code = 1; code < total; code++) {
+    const a = [], b = [];
+    let c = code;
+    for (let i = 0; i < n; i++) {
+      const slot = c % 3; c = Math.floor(c / 3);
+      if (slot === 1) a.push(digits[i]);
+      else if (slot === 2) b.push(digits[i]);
+    }
+    if (a.length === 0 || b.length === 0) continue;
+    const a6 = findCombo(a, 6), b7 = findCombo(b, 7);
+    if (a6 && b7) {
+      const r = { type:'split', left:a6, right:b7, swap:false };
+      SOLN_CACHE.set(key, r);
+      return r;
+    }
+  }
+  SOLN_CACHE.set(key, null);
+  return null;
+}
+
+const OP_SYM = { '+':'+', '-':'−', '*':'×', '/':'÷' };
+
+function formatExprStr(nums, ops) {
+  let s = String(nums[0]);
+  for (let i = 0; i < ops.length; i++) s += ' ' + OP_SYM[ops[i]] + ' ' + nums[i+1];
+  return s;
+}
+
+function formatSolution(sol) {
+  if (!sol) return '';
+  if (sol.type === 'direct') return formatExprStr(sol.nums, sol.ops) + ' = 67';
+  const lstr = formatExprStr(sol.left.nums, sol.left.ops);
+  const rstr = formatExprStr(sol.right.nums, sol.right.ops);
+  const lt = sol.swap ? 7 : 6;
+  const rt = sol.swap ? 6 : 7;
+  return lstr + ' = ' + lt + '   ·   ' + rstr + ' = ' + rt;
+}
+
+// ── PLATE GENERATION ──────────────────────────────────────────
+function genPlate() {
+  const digits = Array.from({length:4}, () => Math.floor(Math.random()*10));
+  let letters, isFunny = false;
+  if (Math.random() < FUNNY_PROB) {
+    letters = FUNNY_PLATES[Math.floor(Math.random() * FUNNY_PLATES.length)];
+    isFunny = true;
+  } else {
+    letters = '';
+    for (let i = 0; i < 3; i++) {
+      letters += CONSONANTS[Math.floor(Math.random()*CONSONANTS.length)];
+    }
+  }
+  const sol = solve(digits);
+  return { digits, letters, isFunny, solvable: sol !== null, solution: sol };
+}
+
+function renderLetters() {
+  const el = document.getElementById('plate-letters');
+  el.innerHTML = plate.letters.split('').map(c => `<span>${c}</span>`).join('');
+  el.classList.toggle('funny', !!plate.isFunny);
+  // remove any old callout
+  document.querySelectorAll('.funny-callout').forEach(c => c.remove());
+  if (plate.isFunny) {
+    const callout = document.createElement('div');
+    callout.className = 'funny-callout';
+    callout.textContent = plate.letters + '!';
+    document.getElementById('plate').appendChild(callout);
+    setTimeout(() => callout.remove(), 1700);
+  }
+}
+
+// ── EXPRESSION HANDLING ───────────────────────────────────────
+function lastTokenType() {
+  if (expression.length === 0) return null;
+  return expression[expression.length-1].type;
+}
+
+function clickDigit(i) {
+  if (!gameRunning || busy) return;
+  const lt = lastTokenType();
+  if (lt === 'digit') return;
+  if (expression.some(t => t.type === 'digit' && t.i === i)) return;
+  expression.push({ type:'digit', i, val: plate.digits[i] });
+  refreshAll();
+}
+
+function clickOp(op) {
+  if (!gameRunning || busy) return;
+  if (lastTokenType() !== 'digit') return;
+  if (op === '|') {
+    if (expression.some(t => t.type === 'split')) return;
+    expression.push({ type:'split' });
+  } else {
+    expression.push({ type:'op', op });
+  }
+  refreshAll();
+}
+
+function clearExpr() {
+  if (!gameRunning || busy) return;
+  expression = [];
+  refreshAll();
+}
+
+function backspace() {
+  if (!gameRunning || busy) return;
+  expression.pop();
+  refreshAll();
+}
+
+function evalTokens(tokens) {
+  if (tokens.length === 0) return null;
+  if (tokens[0].type !== 'digit') return null;
+  const nums = [], ops = [];
+  for (let i = 0; i < tokens.length; i++) {
+    if (i % 2 === 0) {
+      if (tokens[i].type !== 'digit') return null;
+      nums.push(tokens[i].val);
+    } else {
+      if (tokens[i].type !== 'op') return null;
+      ops.push(tokens[i].op);
+    }
+  }
+  return evalExpr(nums, ops);
+}
+
+function refreshAll() {
+  // expression text
+  const txtEl = document.getElementById('expr-text');
+  if (expression.length === 0) {
+    txtEl.innerHTML = '<span class="placeholder">Construeix una expressió…</span>';
+  } else {
+    txtEl.textContent = expression.map(t => {
+      if (t.type === 'digit') return String(t.val);
+      if (t.type === 'op')    return ' ' + OP_SYM[t.op] + ' ';
+      if (t.type === 'split') return '  │  ';
+    }).join('');
+  }
+
+  // result preview
+  const resEl = document.getElementById('expr-result');
+  const wrap  = document.getElementById('expr-wrap');
+  wrap.classList.remove('ok','bad');
+  if (expression.length === 0 || lastTokenType() !== 'digit') {
+    resEl.innerHTML = '&nbsp;';
+  } else {
+    const splitIdx = expression.findIndex(t => t.type === 'split');
+    if (splitIdx === -1) {
+      const v = evalTokens(expression);
+      resEl.textContent = '= ' + (v === null ? '?' : v);
+      if (v === 67) wrap.classList.add('ok');
+    } else {
+      const left  = expression.slice(0, splitIdx);
+      const right = expression.slice(splitIdx + 1);
+      const lv = evalTokens(left);
+      const rv = right.length ? evalTokens(right) : null;
+      resEl.textContent = (lv ?? '?') + ' │ ' + (rv ?? '?');
+      if ((lv===6 && rv===7) || (lv===7 && rv===6)) wrap.classList.add('ok');
+    }
+  }
+
+  // digit buttons / plate digits
+  const used = new Set(expression.filter(t=>t.type==='digit').map(t=>t.i));
+  document.querySelectorAll('.kbtn.dig').forEach(b => {
+    b.disabled = used.has(+b.dataset.i);
+  });
+  document.querySelectorAll('.plate-digit').forEach(d => {
+    d.classList.toggle('used', used.has(+d.dataset.i));
+  });
+
+  // op + split buttons
+  const lt = lastTokenType();
+  document.querySelectorAll('.kbtn.op, .kbtn.split').forEach(b => {
+    const op = b.dataset.op;
+    if (op === '|') {
+      b.disabled = lt !== 'digit' || expression.some(t => t.type === 'split');
+    } else {
+      b.disabled = lt !== 'digit';
+    }
+  });
+
+  // Auto-submit when the current expression is already a valid 67 / 6·7
+  if (gameRunning && !busy && wrap.classList.contains('ok')) {
+    setTimeout(() => {
+      if (gameRunning && !busy &&
+          document.getElementById('expr-wrap').classList.contains('ok')) {
+        submit();
+      }
+    }, 250);
+  }
+}
+
+// ── SUBMIT ────────────────────────────────────────────────────
+function submit() {
+  if (!gameRunning || busy) return;
+  const usedCount = expression.filter(t => t.type === 'digit').length;
+  if (usedCount === 0) {
+    flashBad("Falta l'expressió");
+    return;
+  }
+  if (lastTokenType() !== 'digit') {
+    flashBad("Expressió incompleta");
+    return;
+  }
+  const splitIdx = expression.findIndex(t => t.type === 'split');
+  let ok = false;
+  if (splitIdx === -1) {
+    ok = evalTokens(expression) === 67;
+  } else {
+    const left  = expression.slice(0, splitIdx);
+    const right = expression.slice(splitIdx + 1);
+    if (left.length === 0 || right.length === 0) {
+      flashBad("Cal expressió a banda i banda del │");
+      return;
+    }
+    const lv = evalTokens(left);
+    const rv = evalTokens(right);
+    ok = (lv === 6 && rv === 7) || (lv === 7 && rv === 6);
+  }
+  if (ok) onCorrect('found');
+  else    onWrong('found-wrong');
+}
+
+function clickNope() {
+  if (!gameRunning || busy) return;
+  if (!plate.solvable) onCorrect('nope');
+  else                 onWrong('nope-wrong');
+}
+
+// ── OUTCOMES ─────────────────────────────────────────────────
+function onCorrect(reason) {
+  busy = true;
+  score++;
+  document.getElementById('score-val').textContent = score;
+  flashGood(reason === 'nope' ? 'Bé! Era impossible' : '+1 punt!');
+  document.getElementById('plate').classList.add('flash-ok');
+  if (score >= TARGET_TOTAL) {
+    setTimeout(() => endGame('win'), 700);
+  } else {
+    setTimeout(() => { busy = false; nextPlate(); }, 700);
+  }
+}
+
+function onWrong(reason) {
+  busy = true;
+  lives--;
+  document.getElementById('lives-val').textContent = lives;
+  if      (reason === 'time')        flashBad('⏰ Temps!');
+  else if (reason === 'nope-wrong')  flashBad('Sí que tenia solució!');
+  else                                flashBad('Resultat incorrecte!');
+  document.getElementById('plate').classList.add('shake');
+  const hint = document.getElementById('solution-hint');
+  if (plate.solvable) {
+    hint.textContent = 'Sol.: ' + formatSolution(plate.solution);
+  } else {
+    hint.textContent = 'No tenia solució — havies de prémer "Impossible"';
+  }
+  if (lives <= 0) {
+    setTimeout(() => endGame('dead'), 1900);
+  } else {
+    setTimeout(() => {
+      document.getElementById('plate').classList.remove('shake');
+      busy = false;
+      nextPlate();
+    }, 1900);
+  }
+}
+
+function flashGood(msg) { showFloat(msg, 'good'); }
+function flashBad(msg)  { showFloat(msg, 'bad'); }
+function showFloat(msg, cls) {
+  const el = document.createElement('div');
+  el.className = 'float-msg ' + cls;
+  el.textContent = msg;
+  const rect = document.getElementById('plate').getBoundingClientRect();
+  el.style.left = (rect.left + rect.width / 2) + 'px';
+  el.style.top  = (rect.top + rect.height / 2 + window.scrollY) + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+// ── PLATE LIFECYCLE ──────────────────────────────────────────
+function nextPlate() {
+  document.getElementById('plate').classList.remove('shake', 'flash-ok');
+  document.getElementById('solution-hint').innerHTML = '&nbsp;';
+  expression = [];
+  plate = genPlate();
+  document.querySelectorAll('.plate-digit').forEach((el, i) => {
+    el.textContent = plate.digits[i];
+    el.classList.remove('used');
+  });
+  renderLetters();
+  document.querySelectorAll('.kbtn.dig').forEach((b, i) => {
+    b.textContent = plate.digits[i];
+    b.disabled = false;
+  });
+  timeLeft = DIFFICULTY[difficulty].time;
+  refreshTimer();
+  refreshAll();
+}
+
+// ── TIMER ────────────────────────────────────────────────────
+function startTimer() {
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    if (!gameRunning || busy) return;
+    timeLeft--;
+    refreshTimer();
+    if (timeLeft <= 0) onWrong('time');
+  }, 1000);
+}
+
+function refreshTimer() {
+  const el  = document.getElementById('timer-val');
+  const box = document.getElementById('timer-box');
+  el.textContent = timeLeft;
+  box.className = 'hud-box';
+  if      (timeLeft <= 3) box.classList.add('urgent');
+  else if (timeLeft <= 6) box.classList.add('warning');
+}
+
+// ── GAME ─────────────────────────────────────────────────────
+function startGame(diff) {
+  if (diff) difficulty = diff;
+  document.body.classList.toggle('easy', difficulty === 'easy');
+  document.body.classList.toggle('hard', difficulty === 'hard');
+  renderDiffBadge();
+  document.querySelectorAll('.overlay').forEach(o => o.remove());
+  score = 0;
+  lives = MAX_LIVES;
+  busy = false;
+  document.getElementById('score-val').textContent = score;
+  document.getElementById('lives-val').textContent = lives;
+  gameRunning = true;
+  nextPlate();
+  startTimer();
+}
+
+function renderDiffBadge() {
+  const host = document.getElementById('diff-badge');
+  if (!host) return;
+  const d = DIFFICULTY[difficulty];
+  host.className = 'diff-badge ' + difficulty;
+  host.style.display = 'inline-block';
+  host.innerHTML = `Nivell: ${d.label} (${d.keys}, ${d.time}s)<span class="menu-link" onclick="goToMenu()">menú</span>`;
+}
+
+function hideDiffBadge() {
+  const host = document.getElementById('diff-badge');
+  if (host) host.style.display = 'none';
+}
+
+function goToMenu() {
+  gameRunning = false;
+  busy = false;
+  clearInterval(timerInterval);
+  showWelcome();
+}
+
+function endGame(reason) {
+  gameRunning = false;
+  busy = false;
+  clearInterval(timerInterval);
+  const ov = document.createElement('div');
+  ov.className = 'overlay';
+  const isWin = reason === 'win';
+  ov.innerHTML = `
+    <div class="overlay-box">
+      <h2>${isWin ? '🏆 Has guanyat!' : '💀 Game Over'}</h2>
+      <p>${isWin ? 'Has arribat als 67 punts amb ' + lives + ' vides restants!' : "T'has quedat sense vides…"}</p>
+      <div class="score-big">${score} punts</div>
+      <p style="font-size:0.85rem;color:#666">Nivell: ${DIFFICULTY[difficulty].label}</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px">
+        <button class="btn" onclick="startGame('${difficulty}')">Tornar a jugar</button>
+        <button class="btn" style="background:#2a2a4a;color:white" onclick="goToMenu()">Menú</button>
+      </div>
+    </div>`;
+  document.body.appendChild(ov);
+}
+
+// ── EVENTS ───────────────────────────────────────────────────
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('.kbtn, .plate-digit');
+  if (!t) return;
+  if (t.disabled) return;
+  if (t.classList.contains('dig'))         { clickDigit(+t.dataset.i); t.blur(); return; }
+  if (t.classList.contains('plate-digit')) { clickDigit(+t.dataset.i); return; }
+  if (t.classList.contains('op') || t.classList.contains('split')) { clickOp(t.dataset.op); t.blur(); return; }
+  if (t.id === 'clear-btn')  { clearExpr(); t.blur(); return; }
+  if (t.id === 'submit-btn') { submit();    t.blur(); return; }
+  if (t.id === 'nope-btn')   { clickNope(); t.blur(); return; }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (!gameRunning || busy) return;
+  if (/^[0-9]$/.test(e.key)) {
+    const idx = plate.digits.findIndex((v, i) => v === +e.key && !expression.some(t => t.type==='digit' && t.i===i));
+    if (idx >= 0) clickDigit(idx);
+  } else if (e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/') {
+    if (DIFFICULTY[difficulty].ops.includes(e.key)) clickOp(e.key);
+  } else if (e.key === '|') {
+    clickOp('|');
+  } else if (e.key === 'Enter' || e.key === '=') {
+    e.preventDefault();
+    submit();
+  } else if (e.key === 'Backspace') {
+    e.preventDefault();
+    backspace();
+  } else if (e.key === 'Escape') {
+    clearExpr();
+  } else if (e.key === 'n' || e.key === 'N') {
+    clickNope();
+  }
+});
+
+// ── WELCOME / MENU ───────────────────────────────────────────
+function showWelcome() {
+  document.querySelectorAll('.overlay').forEach(o => o.remove());
+  hideDiffBadge();
+  expression = [];
+  plate = genPlate();
+  document.querySelectorAll('.plate-digit').forEach((el, i) => { el.textContent = plate.digits[i]; el.classList.remove('used'); });
+  renderLetters();
+  document.querySelectorAll('.kbtn.dig').forEach((b, i) => { b.textContent = plate.digits[i]; b.disabled = false; });
+  timeLeft = DIFFICULTY[difficulty].time;
+  refreshTimer();
+  refreshAll();
+  const ov = document.createElement('div');
+  ov.className = 'overlay';
+  ov.innerHTML = `
+    <div class="overlay-box">
+      <h2>Matrí-67</h2>
+      <p style="color:#ffd200;font-size:1rem;margin:6px 0">El joc de les matrícules</p>
+      <ul>
+        <li>Cada matrícula et dóna <strong style="color:#ffd200">4 dígits</strong></li>
+        <li>Combina'ls per fer <strong style="color:#ffd200">67</strong>, o <strong>6</strong> i <strong>7</strong> per separat (botó │)</li>
+        <li>Pots usar només els dígits que necessitis</li>
+        <li>Si no hi ha cap solució: <strong style="color:#ffd200">"Impossible"</strong></li>
+        <li>Arriba a <strong style="color:#ffd200">67 punts</strong> per guanyar (10 vides)</li>
+      </ul>
+      <p style="font-size:1rem;color:#fff;margin-top:14px;font-weight:700">Tria nivell:</p>
+      <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:12px">
+        <button class="diff-btn easy" onclick="startGame('easy')">
+          <div class="big">😌 Fàcil</div>
+          <div class="small">+ −  ·  15 s</div>
+        </button>
+        <button class="diff-btn hard" onclick="startGame('hard')">
+          <div class="big">🔥 Difícil</div>
+          <div class="small">+ − × ÷  ·  10 s</div>
+        </button>
+      </div>
+      <p style="font-size:0.72rem;color:#555;margin-top:14px">Teclat: dígits, + − * / | (split), Enter (comprova), N (impossible), Esc (esborra)</p>
+    </div>`;
+  document.body.appendChild(ov);
+}
+
+showWelcome();
+</script>
+</body>
+</html>
