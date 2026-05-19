@@ -138,9 +138,20 @@ body {
 .plate-digit {
   display: inline-block;
   min-width: 0.7em;
+  padding: 0 4px;
   text-align: center;
   cursor: pointer;
-  transition: opacity 0.25s, transform 0.25s, color 0.25s;
+  border-radius: 6px;
+  transition: opacity 0.2s, transform 0.2s, color 0.2s, background 0.2s;
+}
+.plate-digit:not(.used):not(.wait):hover {
+  color: #4f46e5;
+  background: rgba(79,70,229,0.14);
+  transform: scale(1.1);
+}
+.plate-digit.wait {
+  opacity: 0.4;
+  cursor: default;
 }
 .plate-digit.used {
   opacity: 0.18;
@@ -304,6 +315,14 @@ body {
   gap: 8px;
   justify-content: center;
   flex-wrap: wrap;
+}
+/* operator row sits directly under the plate */
+.op-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
 }
 .kbtn {
   background: #1f2a4a;
@@ -475,7 +494,7 @@ body.easy .kbtn.op[data-op="/"] { display: none; }
   </div>
   <div class="hud-box" id="timer-box">
     <div class="hud-label">Temps</div>
-    <div class="hud-value" id="timer-val">10</div>
+    <div class="hud-value" id="timer-val">20</div>
   </div>
   <div class="hud-box">
     <div class="hud-label">Vides</div>
@@ -500,7 +519,14 @@ body.easy .kbtn.op[data-op="/"] { display: none; }
   </div>
 </div>
 
-<p class="goal">Amb els dígits de la matrícula, fes primer un <b>6</b> i després un <b>7</b></p>
+<div class="op-row">
+  <button class="kbtn op" data-op="+">+</button>
+  <button class="kbtn op" data-op="-">−</button>
+  <button class="kbtn op" data-op="*">×</button>
+  <button class="kbtn op" data-op="/">÷</button>
+</div>
+
+<p class="goal">Toca els dígits de la matrícula per fer primer un <b>6</b>, i després un <b>7</b></p>
 
 <div class="steps">
   <div class="step active" id="step-6">
@@ -518,18 +544,6 @@ body.easy .kbtn.op[data-op="/"] { display: none; }
 <div class="solution-hint" id="solution-hint">&nbsp;</div>
 
 <div class="controls">
-  <div class="btn-row" id="dig-row">
-    <button class="kbtn dig" data-i="0">0</button>
-    <button class="kbtn dig" data-i="1">0</button>
-    <button class="kbtn dig" data-i="2">0</button>
-    <button class="kbtn dig" data-i="3">0</button>
-  </div>
-  <div class="btn-row">
-    <button class="kbtn op" data-op="+">+</button>
-    <button class="kbtn op" data-op="-">−</button>
-    <button class="kbtn op" data-op="*">×</button>
-    <button class="kbtn op" data-op="/">÷</button>
-  </div>
   <div class="btn-row">
     <button class="kbtn back"  id="back-btn"  title="Esborra l'últim">⌫</button>
     <button class="kbtn reset" id="reset-btn" title="Esborra-ho tot i torna a començar">↺ Recomença</button>
@@ -538,7 +552,7 @@ body.easy .kbtn.op[data-op="/"] { display: none; }
 </div>
 
 <p class="instr">
-  <strong>Pas 1:</strong> combina dígits per fer un <strong>6</strong>.
+  <strong>Pas 1:</strong> toca dígits de la matrícula i operadors per fer un <strong>6</strong>.
   <strong>Pas 2:</strong> amb els dígits que quedin, fes un <strong>7</strong>.<br>
   El joc valida sol quan ho encertes. Si no es pot, prem <strong>Impossible</strong>.<br>
   Arriba a <strong>67 punts</strong> per guanyar (10 vides).
@@ -555,16 +569,16 @@ const FUNNY_PROB   = 0.25;
 const IMPOSSIBLE_PROB = 0.2;   // ~1 in 5 plates is impossible
 const MAX_GEN_TRIES   = 60;    // rejection-sampling safety cap
 const FUNNY_PLATES = [
-  'BRO','SIS','WTF','LOL','OMG','FBI','CIA','KGB','WOW','FUN',
-  'BOT','WIN','GOD','DAD','MOM','DOG','CAT','YOU','ASS','FAQ',
+  'BRO','SIS','SKY','LOL','OMG','FBI','CIA','KGB','WOW','FUN',
+  'BOT','WIN','GOD','DAD','MOM','DOG','CAT','YOU','SUN','FAQ',
   'GIF','USB','GYM','PDF','UFO','BAE','BOO','MEH','HMM','SOS',
   'SUS','OOF','POW','ZAP','BAM','BYE','HAH','HEH','ICE','FAN',
-  'MAD','NEW','OWL','PRO','RIP','SEX','SIR','TAX','TIP','TOY',
+  'MAD','NEW','OWL','PRO','RIP','JOY','SIR','TAX','TIP','TOY',
   'USA','VIP','WAR','YAY','YEP','MIX','HEY','TBH','IDK','FYI'
 ];
 const DIFFICULTY = {
-  easy: { time: 15, ops: ['+','-'],         label: 'Fàcil',   keys: '+ −',     desc: 'Només sumes i restes' },
-  hard: { time: 10, ops: ['+','-','*','/'], label: 'Difícil', keys: '+ − × ÷', desc: 'Totes les operacions' }
+  easy: { time: 20, ops: ['+','-'],         label: 'Fàcil',   keys: '+ −',     desc: 'Només sumes i restes' },
+  hard: { time: 20, ops: ['+','-','*','/'], label: 'Difícil', keys: '+ − × ÷', desc: 'Totes les operacions' }
 };
 let difficulty = 'hard';
 
@@ -818,13 +832,14 @@ function refreshAll() {
   }
   document.getElementById('num-7').textContent = '2';
 
-  // ── Buttons ──
-  const needOp = lastTokenType() === 'digit';   // an operator must come next
-  document.querySelectorAll('.kbtn.dig').forEach(b => {
-    b.disabled = digitUsed(+b.dataset.i) || needOp;
-  });
+  // ── Buttons & plate digits ──
+  // needOp: the next token must be an operator (we just placed a digit).
+  const needOp = lastTokenType() === 'digit';
   document.querySelectorAll('.plate-digit').forEach(d => {
-    d.classList.toggle('used', digitUsed(+d.dataset.i));
+    const i = +d.dataset.i;
+    const used = digitUsed(i);
+    d.classList.toggle('used', used);
+    d.classList.toggle('wait', needOp && !used);   // dim: pick an operator first
   });
   document.querySelectorAll('.kbtn.op').forEach(b => {
     b.disabled = !needOp;
@@ -930,13 +945,9 @@ function nextPlate() {
   plate = genPlate();
   document.querySelectorAll('.plate-digit').forEach((el, i) => {
     el.textContent = plate.digits[i];
-    el.classList.remove('used');
+    el.classList.remove('used', 'wait');
   });
   renderLetters();
-  document.querySelectorAll('.kbtn.dig').forEach((b, i) => {
-    b.textContent = plate.digits[i];
-    b.disabled = false;
-  });
   timeLeft = DIFFICULTY[difficulty].time;
   refreshTimer();
   refreshAll();
@@ -1026,7 +1037,6 @@ document.addEventListener('click', (e) => {
   const t = e.target.closest('.kbtn, .plate-digit');
   if (!t) return;
   if (t.disabled) return;
-  if (t.classList.contains('dig'))         { clickDigit(+t.dataset.i); t.blur(); return; }
   if (t.classList.contains('plate-digit')) { clickDigit(+t.dataset.i); return; }
   if (t.classList.contains('op'))          { clickOp(t.dataset.op); t.blur(); return; }
   if (t.id === 'back-btn')  { backspace(); t.blur(); return; }
@@ -1058,9 +1068,8 @@ function showWelcome() {
   exprs = { six: [], seven: [] };
   stage = 'six';
   plate = genPlate();
-  document.querySelectorAll('.plate-digit').forEach((el, i) => { el.textContent = plate.digits[i]; el.classList.remove('used'); });
+  document.querySelectorAll('.plate-digit').forEach((el, i) => { el.textContent = plate.digits[i]; el.classList.remove('used', 'wait'); });
   renderLetters();
-  document.querySelectorAll('.kbtn.dig').forEach((b, i) => { b.textContent = plate.digits[i]; b.disabled = false; });
   timeLeft = DIFFICULTY[difficulty].time;
   refreshTimer();
   refreshAll();
@@ -1072,7 +1081,7 @@ function showWelcome() {
       <p style="color:#ffd200;font-size:1rem;margin:6px 0">Fes un 6, després un 7</p>
       <ol>
         <li>Cada matrícula et dóna <strong style="color:#ffd200">4 dígits</strong></li>
-        <li><strong>Fes un 6</strong> combinant alguns dígits amb operacions</li>
+        <li><strong>Fes un 6</strong> tocant dígits de la matrícula i operadors</li>
         <li><strong>Fes un 7</strong> amb els dígits que et quedin</li>
         <li>El joc valida sol: en encertar el 6 passa al 7</li>
         <li>Si no es pot fer el 6 i el 7: <strong style="color:#ffd200">"Impossible"</strong></li>
@@ -1082,11 +1091,11 @@ function showWelcome() {
       <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:12px">
         <button class="diff-btn easy" onclick="startGame('easy')">
           <div class="big">😌 Fàcil</div>
-          <div class="small">+ −  ·  15 s</div>
+          <div class="small">+ −  ·  20 s</div>
         </button>
         <button class="diff-btn hard" onclick="startGame('hard')">
           <div class="big">🔥 Difícil</div>
-          <div class="small">+ − × ÷  ·  10 s</div>
+          <div class="small">+ − × ÷  ·  20 s</div>
         </button>
       </div>
       <p style="font-size:0.72rem;color:#555;margin-top:14px">Teclat: dígits, + − * /, ⌫ (esborra), Esc (recomença), N (impossible)</p>
