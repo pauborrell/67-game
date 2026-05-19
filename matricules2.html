@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matrí-67 · v2</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #0f0f1a;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px 10px;
+  color: white;
+  overflow-x: hidden;
+}
+
+/* TITLE */
+.title {
+  font-size: 3.5rem;
+  font-weight: 900;
+  letter-spacing: -3px;
+  background: linear-gradient(135deg, #f7971e, #ffd200);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.subtitle {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 16px;
+  letter-spacing: 1px;
+  text-align: center;
+}
+.subtitle .v2 {
+  color: #ffd200;
+  font-weight: 700;
+}
+
+/* HUD */
+.hud {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 18px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.hud-box {
+  background: #16213e;
+  border: 1px solid #2a2a4a;
+  border-radius: 12px;
+  padding: 8px 18px;
+  text-align: center;
+  min-width: 90px;
+}
+.hud-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  color: #555;
+  letter-spacing: 1px;
+  margin-bottom: 2px;
+}
+.hud-value {
+  font-size: 1.6rem;
+  font-weight: 900;
+  line-height: 1;
+}
+#score-val { color: #ffd200; }
+#lives-val { color: #f87171; }
+#timer-val { color: #4ade80; font-variant-numeric: tabular-nums; }
+#timer-box.warning #timer-val { color: #f87171; animation: timerPulse 0.5s infinite alternate; }
+#timer-box.urgent  #timer-val { color: #ff2222; animation: timerPulse 0.25s infinite alternate; }
+
+@keyframes timerPulse {
+  from { transform: scale(1);    opacity: 1; }
+  to   { transform: scale(1.15); opacity: 0.7; }
+}
+
+/* PLATE */
+.plate {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  background: #f7f7e0;
+  border: 3px solid #1a1a2a;
+  border-radius: 8px;
+  margin-bottom: 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5), inset 0 0 8px rgba(0,0,0,0.1);
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  overflow: hidden;
+  user-select: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.plate.shake { animation: shake-plate 0.45s; }
+@keyframes shake-plate {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-9px) rotate(-1deg); }
+  40% { transform: translateX(9px) rotate(1deg); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+.plate.flash-ok { animation: flash-ok 0.6s; }
+@keyframes flash-ok {
+  0%   { box-shadow: 0 0 0 rgba(74,222,128,0); }
+  50%  { box-shadow: 0 0 40px rgba(74,222,128,0.95); }
+  100% { box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+}
+.plate-eu {
+  background: #003399;
+  color: #ffcc00;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 6px;
+  width: 38px;
+  font-weight: 700;
+}
+.plate-eu .stars { font-size: 0.55rem; line-height: 1; letter-spacing: -1px; }
+.plate-eu .country { font-size: 1.1rem; font-weight: 900; line-height: 1; }
+.plate-content {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 22px;
+  font-size: 3rem;
+  font-weight: 900;
+  color: #1a1a2a;
+  letter-spacing: 2px;
+}
+.plate-digit {
+  display: inline-block;
+  min-width: 0.7em;
+  text-align: center;
+  cursor: pointer;
+  transition: opacity 0.25s, transform 0.25s, color 0.25s;
+}
+.plate-digit.used {
+  opacity: 0.18;
+  transform: scale(0.85);
+}
+.plate-sep {
+  width: 4px;
+  height: 1.4em;
+  background: #1a1a2a;
+  margin: 0 8px;
+  border-radius: 1px;
+}
+.plate-letters {
+  letter-spacing: 3px;
+}
+.plate-letters span { display: inline-block; }
+.plate-letters.funny span {
+  animation: bounce-letter 0.65s ease-in-out infinite;
+  color: #cc0066;
+  text-shadow: 0 0 6px rgba(255, 210, 0, 0.4);
+}
+.plate-letters.funny span:nth-child(1) { animation-delay: 0s;    }
+.plate-letters.funny span:nth-child(2) { animation-delay: 0.13s; }
+.plate-letters.funny span:nth-child(3) { animation-delay: 0.26s; }
+@keyframes bounce-letter {
+  0%, 100% { transform: translateY(0)    rotate(0deg);  color: #cc0066; }
+  50%      { transform: translateY(-8px) rotate(-7deg); color: #f7971e; }
+}
+
+/* funny callout above the plate */
+.funny-callout {
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%) scale(0);
+  background: #ffd200;
+  color: #0f0f1a;
+  font-size: 0.85rem;
+  font-weight: 900;
+  padding: 4px 12px;
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(255, 210, 0, 0.5);
+  white-space: nowrap;
+  pointer-events: none;
+  letter-spacing: 1px;
+  animation: callout-pop 1.6s ease-out forwards;
+}
+@keyframes callout-pop {
+  0%   { transform: translateX(-50%) scale(0)    rotate(-15deg); opacity: 0; }
+  20%  { transform: translateX(-50%) scale(1.2)  rotate(6deg);   opacity: 1; }
+  35%  { transform: translateX(-50%) scale(0.95) rotate(-3deg);  opacity: 1; }
+  50%  { transform: translateX(-50%) scale(1.05) rotate(2deg);   opacity: 1; }
+  100% { transform: translateX(-50%) scale(1)    rotate(0);      opacity: 0; }
+}
+
+/* GOAL */
+.goal {
+  font-size: 0.95rem;
+  color: #aaa;
+  margin-bottom: 12px;
+  text-align: center;
+  max-width: 92vw;
+}
+.goal b { color: #ffd200; }
+
+/* STEPS – two ordered boxes: build the 6, then the 7 */
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 340px;
+  margin-bottom: 10px;
+}
+.step {
+  background: #16213e;
+  border: 2px solid #2a2a4a;
+  border-radius: 14px;
+  padding: 10px 16px;
+  transition: border-color 0.25s, box-shadow 0.25s, opacity 0.25s;
+}
+.step.active { border-color: #ffd200; box-shadow: 0 0 16px rgba(255,210,0,0.28); }
+.step.done   { border-color: #4ade80; box-shadow: 0 0 14px rgba(74,222,128,0.28); }
+.step.locked { opacity: 0.45; }
+
+.step-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  letter-spacing: 0.5px;
+  color: #888;
+  margin-bottom: 5px;
+}
+.step.active .step-head { color: #ffd200; }
+.step.done   .step-head { color: #4ade80; }
+.step-head b { font-size: 1.05rem; }
+.step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: #2a2a4a;
+  color: #999;
+  font-size: 0.8rem;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+.step.active .step-num { background: #ffd200; color: #0f0f1a; }
+.step.done   .step-num { background: #4ade80; color: #0f0f1a; }
+
+.step-expr {
+  font-family: 'Courier New', monospace;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #ffd200;
+  min-height: 1.6rem;
+  line-height: 1.2;
+  letter-spacing: 1px;
+}
+.step.done .step-expr { color: #4ade80; }
+.step-expr .placeholder {
+  color: #555;
+  font-weight: 400;
+  font-style: italic;
+  font-size: 0.95rem;
+}
+.step-result {
+  font-size: 0.85rem;
+  color: #888;
+  margin-top: 3px;
+  min-height: 1rem;
+  letter-spacing: 1px;
+  font-family: 'Courier New', monospace;
+}
+.step.done .step-result { color: #4ade80; font-weight: 700; }
+
+/* SOLUTION HINT */
+.solution-hint {
+  margin-bottom: 12px;
+  color: #f87171;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  min-height: 1.2rem;
+  text-align: center;
+  max-width: 92vw;
+}
+
+/* CONTROLS */
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.btn-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.kbtn {
+  background: #1f2a4a;
+  border: 2px solid #2a2a4a;
+  color: white;
+  border-radius: 12px;
+  padding: 0;
+  font-size: 1.4rem;
+  font-weight: 900;
+  cursor: pointer;
+  min-width: 56px;
+  height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.08s, background 0.15s, border-color 0.15s, opacity 0.2s;
+  user-select: none;
+  font-family: inherit;
+}
+.kbtn:hover:not(:disabled) { transform: translateY(-2px); }
+.kbtn:active:not(:disabled) { transform: translateY(0); }
+.kbtn:disabled { opacity: 0.25; cursor: not-allowed; }
+.kbtn.dig   { background: #4f46e5; border-color: #6b62f0; font-size: 1.6rem; }
+.kbtn.dig:hover:not(:disabled)   { background: #6259f0; }
+.kbtn.op    { background: #2a2a4a; }
+.kbtn.op:hover:not(:disabled)    { background: #38385a; }
+.kbtn.back  { background: #4b5563; border-color: #6b7280; }
+.kbtn.back:hover:not(:disabled)  { background: #5b6573; }
+.kbtn.reset { background: #4b5563; border-color: #6b7280; font-size: 0.95rem; padding: 0 16px; min-width: 132px; }
+.kbtn.reset:hover:not(:disabled) { background: #5b6573; }
+.kbtn.nope  { background: #dc2626; border-color: #f04444; font-size: 0.95rem; padding: 0 16px; min-width: 118px; }
+.kbtn.nope:hover:not(:disabled)  { background: #f04444; }
+
+/* hide ×, ÷ in easy mode */
+body.easy .kbtn.op[data-op="*"],
+body.easy .kbtn.op[data-op="/"] { display: none; }
+
+/* difficulty badge */
+.diff-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+.diff-badge.easy { background: rgba(74,222,128,0.15); color: #4ade80; border: 1px solid #4ade80; }
+.diff-badge.hard { background: rgba(220,38,38,0.18); color: #f87171; border: 1px solid #f04444; }
+.diff-badge .menu-link {
+  margin-left: 8px;
+  color: inherit;
+  opacity: 0.7;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.diff-badge .menu-link:hover { opacity: 1; }
+
+/* difficulty buttons in menu */
+.diff-btn {
+  border: 2px solid;
+  border-radius: 14px;
+  padding: 14px 22px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 900;
+  text-align: center;
+  transition: transform 0.1s;
+  min-width: 130px;
+}
+.diff-btn:hover { transform: translateY(-2px) scale(1.03); }
+.diff-btn .big   { font-size: 1.25rem; line-height: 1.1; }
+.diff-btn .small { font-size: 0.72rem; font-weight: 500; opacity: 0.85; margin-top: 4px; letter-spacing: 0.5px; }
+.diff-btn.easy { background: #4ade80; color: #0f0f1a; border-color: #6dec9a; }
+.diff-btn.hard { background: #dc2626; color: white;   border-color: #f04444; }
+
+/* OVERLAY */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200;
+  padding: 20px;
+}
+.overlay-box {
+  background: #16213e;
+  border: 2px solid #ffd200;
+  border-radius: 20px;
+  padding: 30px 36px;
+  text-align: center;
+  max-width: 440px;
+  width: 100%;
+}
+.overlay-box h2 { font-size: 2.4rem; color: #ffd200; margin-bottom: 8px; line-height: 1.1; }
+.overlay-box p  { color: #aaa; margin: 6px 0; line-height: 1.5; font-size: 0.95rem; }
+.overlay-box .score-big { font-size: 2rem; color: white; font-weight: 900; margin: 14px 0; }
+.overlay-box .btn {
+  margin-top: 14px;
+  padding: 13px 34px;
+  background: #ffd200;
+  color: #0f0f1a;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.overlay-box .btn:hover { transform: scale(1.05); }
+.overlay-box ol {
+  text-align: left;
+  margin: 14px 0 6px 20px;
+  color: #aaa;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+.overlay-box ol li::marker { color: #ffd200; font-weight: 900; }
+
+/* FLOAT FEEDBACK */
+.float-msg {
+  position: fixed;
+  pointer-events: none;
+  font-size: 1.4rem;
+  font-weight: 900;
+  z-index: 100;
+  animation: floatUp 1s forwards;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+  transform: translate(-50%, 0);
+  white-space: nowrap;
+}
+.float-msg.good { color: #4ade80; }
+.float-msg.bad  { color: #f87171; }
+@keyframes floatUp {
+  0%   { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -90px) scale(1.4); }
+}
+
+.instr {
+  margin-top: 12px;
+  color: #444;
+  font-size: 0.78rem;
+  text-align: center;
+  max-width: 460px;
+  line-height: 1.6;
+}
+.instr strong { color: #888; }
+
+@media (max-width: 520px) {
+  .title { font-size: 2.5rem; }
+  .plate-content { font-size: 2.4rem; padding: 12px 14px; gap: 2px; }
+  .plate-eu { width: 30px; }
+  .kbtn { min-width: 50px; height: 50px; font-size: 1.2rem; }
+  .kbtn.dig { font-size: 1.4rem; }
+  .kbtn.reset { font-size: 0.9rem; min-width: 116px; }
+  .kbtn.nope { font-size: 0.88rem; min-width: 104px; }
+}
+</style>
+</head>
+<body>
+
+<h1 class="title">Matrí-67</h1>
+<p class="subtitle">EL JOC DE LES MATRÍCULES · <span class="v2">v2</span></p>
+
+<div class="hud">
+  <div class="hud-box">
+    <div class="hud-label">Punts</div>
+    <div class="hud-value"><span id="score-val">0</span><span style="color:#444;font-size:1rem">/67</span></div>
+  </div>
+  <div class="hud-box" id="timer-box">
+    <div class="hud-label">Temps</div>
+    <div class="hud-value" id="timer-val">10</div>
+  </div>
+  <div class="hud-box">
+    <div class="hud-label">Vides</div>
+    <div class="hud-value" id="lives-val">10</div>
+  </div>
+</div>
+
+<div id="diff-badge" class="diff-badge hard" style="display:none"></div>
+
+<div class="plate" id="plate">
+  <div class="plate-eu">
+    <span class="stars">★ ★ ★</span>
+    <span class="country">E</span>
+  </div>
+  <div class="plate-content">
+    <span class="plate-digit" data-i="0">0</span>
+    <span class="plate-digit" data-i="1">0</span>
+    <span class="plate-digit" data-i="2">0</span>
+    <span class="plate-digit" data-i="3">0</span>
+    <span class="plate-sep"></span>
+    <span class="plate-letters" id="plate-letters">BCD</span>
+  </div>
+</div>
+
+<p class="goal">Amb els dígits de la matrícula, fes primer un <b>6</b> i després un <b>7</b></p>
+
+<div class="steps">
+  <div class="step active" id="step-6">
+    <div class="step-head"><span class="step-num" id="num-6">1</span> Fes el <b>6</b></div>
+    <div class="step-expr" id="expr-6"><span class="placeholder">tria dígits per fer un 6…</span></div>
+    <div class="step-result" id="result-6">&nbsp;</div>
+  </div>
+  <div class="step locked" id="step-7">
+    <div class="step-head"><span class="step-num" id="num-7">2</span> Fes el <b>7</b></div>
+    <div class="step-expr" id="expr-7"><span class="placeholder">primer acaba el 6</span></div>
+    <div class="step-result" id="result-7">&nbsp;</div>
+  </div>
+</div>
+
+<div class="solution-hint" id="solution-hint">&nbsp;</div>
+
+<div class="controls">
+  <div class="btn-row" id="dig-row">
+    <button class="kbtn dig" data-i="0">0</button>
+    <button class="kbtn dig" data-i="1">0</button>
+    <button class="kbtn dig" data-i="2">0</button>
+    <button class="kbtn dig" data-i="3">0</button>
+  </div>
+  <div class="btn-row">
+    <button class="kbtn op" data-op="+">+</button>
+    <button class="kbtn op" data-op="-">−</button>
+    <button class="kbtn op" data-op="*">×</button>
+    <button class="kbtn op" data-op="/">÷</button>
+  </div>
+  <div class="btn-row">
+    <button class="kbtn back"  id="back-btn"  title="Esborra l'últim">⌫</button>
+    <button class="kbtn reset" id="reset-btn" title="Esborra-ho tot i torna a començar">↺ Recomença</button>
+    <button class="kbtn nope"  id="nope-btn">Impossible</button>
+  </div>
+</div>
+
+<p class="instr">
+  <strong>Pas 1:</strong> combina dígits per fer un <strong>6</strong>.
+  <strong>Pas 2:</strong> amb els dígits que quedin, fes un <strong>7</strong>.<br>
+  El joc valida sol quan ho encertes. Si no es pot, prem <strong>Impossible</strong>.<br>
+  Arriba a <strong>67 punts</strong> per guanyar (10 vides).
+</p>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────
+const TARGET_TOTAL = 67;
+const MAX_LIVES    = 10;
+const CONSONANTS   = 'BCDFGHJKLMNPRSTVWXYZ';
+const SOLN_CACHE   = new Map();
+const FUNNY_PROB   = 0.25;
+// Fraction of plates with NO solution — keeps impossibles a minority.
+const IMPOSSIBLE_PROB = 0.2;   // ~1 in 5 plates is impossible
+const MAX_GEN_TRIES   = 60;    // rejection-sampling safety cap
+const FUNNY_PLATES = [
+  'BRO','SIS','WTF','LOL','OMG','FBI','CIA','KGB','WOW','FUN',
+  'BOT','WIN','GOD','DAD','MOM','DOG','CAT','YOU','ASS','FAQ',
+  'GIF','USB','GYM','PDF','UFO','BAE','BOO','MEH','HMM','SOS',
+  'SUS','OOF','POW','ZAP','BAM','BYE','HAH','HEH','ICE','FAN',
+  'MAD','NEW','OWL','PRO','RIP','SEX','SIR','TAX','TIP','TOY',
+  'USA','VIP','WAR','YAY','YEP','MIX','HEY','TBH','IDK','FYI'
+];
+const DIFFICULTY = {
+  easy: { time: 15, ops: ['+','-'],         label: 'Fàcil',   keys: '+ −',     desc: 'Només sumes i restes' },
+  hard: { time: 10, ops: ['+','-','*','/'], label: 'Difícil', keys: '+ − × ÷', desc: 'Totes les operacions' }
+};
+let difficulty = 'hard';
+
+// ── STATE ─────────────────────────────────────────────────────
+let plate = { digits: [0,0,0,0], letters: 'BCD', solvable: false, solution: null };
+let score = 0;
+let lives = MAX_LIVES;
+let timeLeft = DIFFICULTY.hard.time;
+let timerInterval = null;
+let gameRunning = false;
+let busy = false;                    // lock during transitions
+let stage = 'six';                   // 'six' → building the 6, 'seven' → building the 7
+let exprs = { six: [], seven: [] };  // each: tokens {type:'digit',i,val} | {type:'op',op}
+
+// ── ARITHMETIC / SOLVER ───────────────────────────────────────
+function permute(arr) {
+  if (arr.length <= 1) return [arr.slice()];
+  const out = [];
+  for (let i = 0; i < arr.length; i++) {
+    const rest = arr.slice(0,i).concat(arr.slice(i+1));
+    for (const p of permute(rest)) out.push([arr[i], ...p]);
+  }
+  return out;
+}
+
+function genOps(n, ops) {
+  let acc = [[]];
+  for (let k = 0; k < n; k++) {
+    const next = [];
+    for (const a of acc) for (const o of ops) next.push([...a, o]);
+    acc = next;
+  }
+  return acc;
+}
+
+function evalExpr(nums, ops) {
+  const n = nums.slice(), o = ops.slice();
+  let i = 0;
+  while (i < o.length) {
+    if (o[i] === '*' || o[i] === '/') {
+      const a = n[i], b = n[i+1];
+      if (o[i] === '/') {
+        if (b === 0) return null;
+        if (a % b !== 0) return null;
+        n[i] = a / b;
+      } else n[i] = a * b;
+      n.splice(i+1, 1);
+      o.splice(i, 1);
+    } else i++;
+  }
+  let r = n[0];
+  for (let j = 0; j < o.length; j++) {
+    r = o[j] === '+' ? r + n[j+1] : r - n[j+1];
+  }
+  return r;
+}
+
+function findCombo(digits, target) {
+  const allowed = DIFFICULTY[difficulty].ops;
+  for (const perm of permute(digits)) {
+    for (const ops of genOps(perm.length - 1, allowed)) {
+      if (evalExpr(perm, ops) === target) return { nums: perm, ops };
+    }
+  }
+  return null;
+}
+
+// A plate is solvable when its digits split into two disjoint groups:
+// one that makes 6 and one that makes 7. (No direct-67 path in v2.)
+function solve(digits) {
+  const key = difficulty + ':' + digits.slice().sort().join(',');
+  if (SOLN_CACHE.has(key)) return SOLN_CACHE.get(key);
+  const n = digits.length;
+  const total = Math.pow(3, n);
+  for (let code = 1; code < total; code++) {
+    const a = [], b = [];
+    let c = code;
+    for (let i = 0; i < n; i++) {
+      const slot = c % 3; c = Math.floor(c / 3);
+      if (slot === 1) a.push(digits[i]);
+      else if (slot === 2) b.push(digits[i]);
+    }
+    if (a.length === 0 || b.length === 0) continue;
+    const six = findCombo(a, 6), seven = findCombo(b, 7);
+    if (six && seven) {
+      const r = { left: six, right: seven };
+      SOLN_CACHE.set(key, r);
+      return r;
+    }
+  }
+  SOLN_CACHE.set(key, null);
+  return null;
+}
+
+const OP_SYM = { '+':'+', '-':'−', '*':'×', '/':'÷' };
+
+function formatExprStr(nums, ops) {
+  let s = String(nums[0]);
+  for (let i = 0; i < ops.length; i++) s += ' ' + OP_SYM[ops[i]] + ' ' + nums[i+1];
+  return s;
+}
+
+function formatSolution(sol) {
+  if (!sol) return '';
+  return '6 = ' + formatExprStr(sol.left.nums, sol.left.ops)
+       + '   ·   7 = ' + formatExprStr(sol.right.nums, sol.right.ops);
+}
+
+// ── PLATE GENERATION ──────────────────────────────────────────
+function genPlate() {
+  // Decide up front whether this plate should be solvable, then draw
+  // random digits until we get that kind (rejection sampling). This
+  // keeps impossible plates a minority — see IMPOSSIBLE_PROB.
+  const wantSolvable = Math.random() >= IMPOSSIBLE_PROB;
+  let digits, sol;
+  for (let t = 0; t < MAX_GEN_TRIES; t++) {
+    digits = Array.from({length:4}, () => Math.floor(Math.random()*10));
+    sol = solve(digits);
+    if ((sol !== null) === wantSolvable) break;
+  }
+
+  let letters, isFunny = false;
+  if (Math.random() < FUNNY_PROB) {
+    letters = FUNNY_PLATES[Math.floor(Math.random() * FUNNY_PLATES.length)];
+    isFunny = true;
+  } else {
+    letters = '';
+    for (let i = 0; i < 3; i++) {
+      letters += CONSONANTS[Math.floor(Math.random()*CONSONANTS.length)];
+    }
+  }
+  return { digits, letters, isFunny, solvable: sol !== null, solution: sol };
+}
+
+function renderLetters() {
+  const el = document.getElementById('plate-letters');
+  el.innerHTML = plate.letters.split('').map(c => `<span>${c}</span>`).join('');
+  el.classList.toggle('funny', !!plate.isFunny);
+  document.querySelectorAll('.funny-callout').forEach(c => c.remove());
+  if (plate.isFunny) {
+    const callout = document.createElement('div');
+    callout.className = 'funny-callout';
+    callout.textContent = plate.letters + '!';
+    document.getElementById('plate').appendChild(callout);
+    setTimeout(() => callout.remove(), 1700);
+  }
+}
+
+// ── EXPRESSION HANDLING ───────────────────────────────────────
+function activeExpr() { return exprs[stage]; }
+
+function lastTokenType() {
+  const e = activeExpr();
+  return e.length ? e[e.length-1].type : null;
+}
+
+function digitUsed(i) {
+  return exprs.six.some(t => t.type === 'digit' && t.i === i)
+      || exprs.seven.some(t => t.type === 'digit' && t.i === i);
+}
+
+// Evaluate a token list; returns null if empty or incomplete (ends in op).
+function exprValue(tokens) {
+  if (tokens.length === 0) return null;
+  if (tokens[tokens.length-1].type !== 'digit') return null;
+  const nums = [], ops = [];
+  for (let i = 0; i < tokens.length; i++) {
+    if (i % 2 === 0) {
+      if (tokens[i].type !== 'digit') return null;
+      nums.push(tokens[i].val);
+    } else {
+      if (tokens[i].type !== 'op') return null;
+      ops.push(tokens[i].op);
+    }
+  }
+  return evalExpr(nums, ops);
+}
+
+function clickDigit(i) {
+  if (!gameRunning || busy) return;
+  if (lastTokenType() === 'digit') return;   // need an operator between digits
+  if (digitUsed(i)) return;                  // each digit can be used only once
+  activeExpr().push({ type:'digit', i, val: plate.digits[i] });
+  refreshAll();
+}
+
+function clickOp(op) {
+  if (!gameRunning || busy) return;
+  if (lastTokenType() !== 'digit') return;   // an operator must follow a digit
+  activeExpr().push({ type:'op', op });
+  refreshAll();
+}
+
+function backspace() {
+  if (!gameRunning || busy) return;
+  activeExpr().pop();
+  refreshAll();
+}
+
+function recomenca() {
+  if (!gameRunning || busy) return;
+  exprs = { six: [], seven: [] };
+  stage = 'six';
+  document.getElementById('solution-hint').innerHTML = '&nbsp;';
+  refreshAll();
+}
+
+// ── RENDER ────────────────────────────────────────────────────
+function renderExprText(tokens) {
+  return tokens.map(t =>
+    t.type === 'digit' ? String(t.val) : ' ' + OP_SYM[t.op] + ' '
+  ).join('');
+}
+
+function refreshAll() {
+  const sixDone = stage === 'seven';
+
+  // ── Step 1: the 6 ──
+  const e6 = document.getElementById('expr-6');
+  const r6 = document.getElementById('result-6');
+  if (exprs.six.length === 0) {
+    e6.innerHTML = '<span class="placeholder">tria dígits per fer un 6…</span>';
+  } else {
+    e6.textContent = renderExprText(exprs.six);
+  }
+  if (sixDone) {
+    r6.textContent = '= 6 ✔';
+  } else {
+    const v6 = exprValue(exprs.six);
+    r6.innerHTML = exprs.six.length === 0 ? '&nbsp;' : '= ' + (v6 === null ? '?' : v6);
+  }
+  document.getElementById('step-6').className = 'step ' + (sixDone ? 'done' : 'active');
+  document.getElementById('num-6').textContent = sixDone ? '✔' : '1';
+
+  // ── Step 2: the 7 ──
+  const e7 = document.getElementById('expr-7');
+  const r7 = document.getElementById('result-7');
+  if (!sixDone) {
+    e7.innerHTML = '<span class="placeholder">primer acaba el 6</span>';
+    r7.innerHTML = '&nbsp;';
+    document.getElementById('step-7').className = 'step locked';
+  } else {
+    if (exprs.seven.length === 0) {
+      e7.innerHTML = '<span class="placeholder">tria dígits per fer un 7…</span>';
+    } else {
+      e7.textContent = renderExprText(exprs.seven);
+    }
+    const v7 = exprValue(exprs.seven);
+    r7.innerHTML = exprs.seven.length === 0 ? '&nbsp;' : '= ' + (v7 === null ? '?' : v7);
+    document.getElementById('step-7').className = 'step active';
+  }
+  document.getElementById('num-7').textContent = '2';
+
+  // ── Buttons ──
+  const needOp = lastTokenType() === 'digit';   // an operator must come next
+  document.querySelectorAll('.kbtn.dig').forEach(b => {
+    b.disabled = digitUsed(+b.dataset.i) || needOp;
+  });
+  document.querySelectorAll('.plate-digit').forEach(d => {
+    d.classList.toggle('used', digitUsed(+d.dataset.i));
+  });
+  document.querySelectorAll('.kbtn.op').forEach(b => {
+    b.disabled = !needOp;
+  });
+
+  checkAutoAdvance();
+}
+
+// ── AUTO-VALIDATION ───────────────────────────────────────────
+function checkAutoAdvance() {
+  if (busy || !gameRunning) return;
+  if (stage === 'six' && exprValue(exprs.six) === 6) {
+    busy = true;
+    document.getElementById('step-6').className = 'step done';
+    document.getElementById('num-6').textContent = '✔';
+    document.getElementById('result-6').textContent = '= 6 ✔';
+    setTimeout(() => {
+      busy = false;
+      if (gameRunning && stage === 'six' && exprValue(exprs.six) === 6) {
+        stage = 'seven';
+        refreshAll();
+      }
+    }, 420);
+  } else if (stage === 'seven' && exprValue(exprs.seven) === 7) {
+    busy = true;
+    document.getElementById('step-7').className = 'step done';
+    document.getElementById('num-7').textContent = '✔';
+    document.getElementById('result-7').textContent = '= 7 ✔';
+    setTimeout(() => {
+      if (gameRunning && stage === 'seven' && exprValue(exprs.seven) === 7) {
+        onCorrect('solved');
+      } else {
+        busy = false;
+      }
+    }, 420);
+  }
+}
+
+// ── OUTCOMES ─────────────────────────────────────────────────
+function onCorrect(reason) {
+  busy = true;
+  score++;
+  document.getElementById('score-val').textContent = score;
+  flashGood(reason === 'nope' ? 'Bé! Era impossible' : '+1 punt!');
+  document.getElementById('plate').classList.add('flash-ok');
+  if (score >= TARGET_TOTAL) {
+    setTimeout(() => endGame('win'), 700);
+  } else {
+    setTimeout(() => { busy = false; nextPlate(); }, 700);
+  }
+}
+
+function onWrong(reason) {
+  busy = true;
+  lives--;
+  document.getElementById('lives-val').textContent = lives;
+  if      (reason === 'time')       flashBad('⏰ Temps!');
+  else if (reason === 'nope-wrong') flashBad('Sí que es podia fer!');
+  else                              flashBad('Incorrecte!');
+  document.getElementById('plate').classList.add('shake');
+  const hint = document.getElementById('solution-hint');
+  if (plate.solvable) {
+    hint.textContent = 'Es podia: ' + formatSolution(plate.solution);
+  } else {
+    hint.textContent = 'No es podia fer — havies de prémer "Impossible"';
+  }
+  if (lives <= 0) {
+    setTimeout(() => endGame('dead'), 2000);
+  } else {
+    setTimeout(() => {
+      document.getElementById('plate').classList.remove('shake');
+      busy = false;
+      nextPlate();
+    }, 2000);
+  }
+}
+
+function clickNope() {
+  if (!gameRunning || busy) return;
+  if (!plate.solvable) onCorrect('nope');
+  else                 onWrong('nope-wrong');
+}
+
+function flashGood(msg) { showFloat(msg, 'good'); }
+function flashBad(msg)  { showFloat(msg, 'bad'); }
+function showFloat(msg, cls) {
+  const el = document.createElement('div');
+  el.className = 'float-msg ' + cls;
+  el.textContent = msg;
+  const rect = document.getElementById('plate').getBoundingClientRect();
+  el.style.left = (rect.left + rect.width / 2) + 'px';
+  el.style.top  = (rect.top + rect.height / 2 + window.scrollY) + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+// ── PLATE LIFECYCLE ──────────────────────────────────────────
+function nextPlate() {
+  document.getElementById('plate').classList.remove('shake', 'flash-ok');
+  document.getElementById('solution-hint').innerHTML = '&nbsp;';
+  exprs = { six: [], seven: [] };
+  stage = 'six';
+  plate = genPlate();
+  document.querySelectorAll('.plate-digit').forEach((el, i) => {
+    el.textContent = plate.digits[i];
+    el.classList.remove('used');
+  });
+  renderLetters();
+  document.querySelectorAll('.kbtn.dig').forEach((b, i) => {
+    b.textContent = plate.digits[i];
+    b.disabled = false;
+  });
+  timeLeft = DIFFICULTY[difficulty].time;
+  refreshTimer();
+  refreshAll();
+}
+
+// ── TIMER ────────────────────────────────────────────────────
+function startTimer() {
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    if (!gameRunning || busy) return;
+    timeLeft--;
+    refreshTimer();
+    if (timeLeft <= 0) onWrong('time');
+  }, 1000);
+}
+
+function refreshTimer() {
+  const el  = document.getElementById('timer-val');
+  const box = document.getElementById('timer-box');
+  el.textContent = timeLeft;
+  box.className = 'hud-box';
+  if      (timeLeft <= 3) box.classList.add('urgent');
+  else if (timeLeft <= 6) box.classList.add('warning');
+}
+
+// ── GAME ─────────────────────────────────────────────────────
+function startGame(diff) {
+  if (diff) difficulty = diff;
+  document.body.classList.toggle('easy', difficulty === 'easy');
+  document.body.classList.toggle('hard', difficulty === 'hard');
+  renderDiffBadge();
+  document.querySelectorAll('.overlay').forEach(o => o.remove());
+  score = 0;
+  lives = MAX_LIVES;
+  busy = false;
+  document.getElementById('score-val').textContent = score;
+  document.getElementById('lives-val').textContent = lives;
+  gameRunning = true;
+  nextPlate();
+  startTimer();
+}
+
+function renderDiffBadge() {
+  const host = document.getElementById('diff-badge');
+  if (!host) return;
+  const d = DIFFICULTY[difficulty];
+  host.className = 'diff-badge ' + difficulty;
+  host.style.display = 'inline-block';
+  host.innerHTML = `Nivell: ${d.label} (${d.keys}, ${d.time}s)<span class="menu-link" onclick="goToMenu()">menú</span>`;
+}
+
+function hideDiffBadge() {
+  const host = document.getElementById('diff-badge');
+  if (host) host.style.display = 'none';
+}
+
+function goToMenu() {
+  gameRunning = false;
+  busy = false;
+  clearInterval(timerInterval);
+  showWelcome();
+}
+
+function endGame(reason) {
+  gameRunning = false;
+  busy = false;
+  clearInterval(timerInterval);
+  const ov = document.createElement('div');
+  ov.className = 'overlay';
+  const isWin = reason === 'win';
+  ov.innerHTML = `
+    <div class="overlay-box">
+      <h2>${isWin ? '🏆 Has guanyat!' : '💀 Game Over'}</h2>
+      <p>${isWin ? 'Has arribat als 67 punts amb ' + lives + ' vides restants!' : "T'has quedat sense vides…"}</p>
+      <div class="score-big">${score} punts</div>
+      <p style="font-size:0.85rem;color:#666">Nivell: ${DIFFICULTY[difficulty].label}</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px">
+        <button class="btn" onclick="startGame('${difficulty}')">Tornar a jugar</button>
+        <button class="btn" style="background:#2a2a4a;color:white" onclick="goToMenu()">Menú</button>
+      </div>
+    </div>`;
+  document.body.appendChild(ov);
+}
+
+// ── EVENTS ───────────────────────────────────────────────────
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('.kbtn, .plate-digit');
+  if (!t) return;
+  if (t.disabled) return;
+  if (t.classList.contains('dig'))         { clickDigit(+t.dataset.i); t.blur(); return; }
+  if (t.classList.contains('plate-digit')) { clickDigit(+t.dataset.i); return; }
+  if (t.classList.contains('op'))          { clickOp(t.dataset.op); t.blur(); return; }
+  if (t.id === 'back-btn')  { backspace(); t.blur(); return; }
+  if (t.id === 'reset-btn') { recomenca(); t.blur(); return; }
+  if (t.id === 'nope-btn')  { clickNope(); t.blur(); return; }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (!gameRunning || busy) return;
+  if (/^[0-9]$/.test(e.key)) {
+    const idx = plate.digits.findIndex((v, i) => v === +e.key && !digitUsed(i));
+    if (idx >= 0) clickDigit(idx);
+  } else if (e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/') {
+    if (DIFFICULTY[difficulty].ops.includes(e.key)) clickOp(e.key);
+  } else if (e.key === 'Backspace') {
+    e.preventDefault();
+    backspace();
+  } else if (e.key === 'Escape') {
+    recomenca();
+  } else if (e.key === 'n' || e.key === 'N') {
+    clickNope();
+  }
+});
+
+// ── WELCOME / MENU ───────────────────────────────────────────
+function showWelcome() {
+  document.querySelectorAll('.overlay').forEach(o => o.remove());
+  hideDiffBadge();
+  exprs = { six: [], seven: [] };
+  stage = 'six';
+  plate = genPlate();
+  document.querySelectorAll('.plate-digit').forEach((el, i) => { el.textContent = plate.digits[i]; el.classList.remove('used'); });
+  renderLetters();
+  document.querySelectorAll('.kbtn.dig').forEach((b, i) => { b.textContent = plate.digits[i]; b.disabled = false; });
+  timeLeft = DIFFICULTY[difficulty].time;
+  refreshTimer();
+  refreshAll();
+  const ov = document.createElement('div');
+  ov.className = 'overlay';
+  ov.innerHTML = `
+    <div class="overlay-box">
+      <h2>Matrí-67 · v2</h2>
+      <p style="color:#ffd200;font-size:1rem;margin:6px 0">Fes un 6, després un 7</p>
+      <ol>
+        <li>Cada matrícula et dóna <strong style="color:#ffd200">4 dígits</strong></li>
+        <li><strong>Fes un 6</strong> combinant alguns dígits amb operacions</li>
+        <li><strong>Fes un 7</strong> amb els dígits que et quedin</li>
+        <li>El joc valida sol: en encertar el 6 passa al 7</li>
+        <li>Si no es pot fer el 6 i el 7: <strong style="color:#ffd200">"Impossible"</strong></li>
+        <li>Arriba a <strong style="color:#ffd200">67 punts</strong> per guanyar (10 vides)</li>
+      </ol>
+      <p style="font-size:1rem;color:#fff;margin-top:14px;font-weight:700">Tria nivell:</p>
+      <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:12px">
+        <button class="diff-btn easy" onclick="startGame('easy')">
+          <div class="big">😌 Fàcil</div>
+          <div class="small">+ −  ·  15 s</div>
+        </button>
+        <button class="diff-btn hard" onclick="startGame('hard')">
+          <div class="big">🔥 Difícil</div>
+          <div class="small">+ − × ÷  ·  10 s</div>
+        </button>
+      </div>
+      <p style="font-size:0.72rem;color:#555;margin-top:14px">Teclat: dígits, + − * /, ⌫ (esborra), Esc (recomença), N (impossible)</p>
+    </div>`;
+  document.body.appendChild(ov);
+}
+
+showWelcome();
+</script>
+</body>
+</html>
