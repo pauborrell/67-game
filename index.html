@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>67 – Seven Ate Nine</title>
+<title>67 – Tria un joc</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -13,759 +13,165 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   min-height: 100vh;
-  padding: 20px 10px;
+  padding: 40px 14px;
   color: white;
   overflow-x: hidden;
 }
 
 /* ── TITLE ─────────────────────────────────── */
 .title {
-  font-size: 3.5rem;
+  font-size: 6rem;
   font-weight: 900;
-  letter-spacing: -3px;
+  letter-spacing: -5px;
   background: linear-gradient(135deg, #f7971e, #ffd200);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   line-height: 1;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 .subtitle {
   font-size: 0.9rem;
   color: #666;
-  margin-bottom: 16px;
-  letter-spacing: 1px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.tagline {
+  font-size: 0.95rem;
+  color: #888;
+  margin-bottom: 36px;
 }
 
-/* ── HUD ────────────────────────────────────── */
-.hud {
+/* ── GAME CARDS ────────────────────────────── */
+.games {
   display: flex;
-  gap: 24px;
-  margin-bottom: 16px;
-  align-items: center;
   flex-wrap: wrap;
+  gap: 20px;
   justify-content: center;
+  max-width: 960px;
 }
-.hud-box {
+.card {
   background: #16213e;
   border: 1px solid #2a2a4a;
-  border-radius: 12px;
-  padding: 8px 20px;
-  text-align: center;
-  min-width: 90px;
-}
-.hud-label {
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  color: #555;
-  letter-spacing: 1px;
-  margin-bottom: 2px;
-}
-.hud-value {
-  font-size: 1.8rem;
-  font-weight: 900;
-  line-height: 1;
-}
-#score-val { color: #ffd200; }
-#lives-val { color: #f87171; letter-spacing: 2px; }
-#timer-val { color: #4ade80; font-variant-numeric: tabular-nums; }
-#timer-box.warning #timer-val { color: #f87171; animation: timerPulse 0.5s infinite alternate; }
-#timer-box.urgent  #timer-val { color: #ff2222; animation: timerPulse 0.25s infinite alternate; }
-
-@keyframes timerPulse {
-  from { transform: scale(1);    opacity: 1; }
-  to   { transform: scale(1.12); opacity: 0.7; }
-}
-
-.sum-box {
-  background: #16213e;
-  border: 2px solid #2a2a4a;
-  border-radius: 14px;
-  padding: 8px 28px;
-  text-align: center;
-  transition: border-color 0.2s, background 0.2s;
-}
-.sum-box .hud-label { color: #888; }
-.sum-box .sum-val {
-  font-size: 2rem;
-  font-weight: 900;
-  color: #aaa;
-  transition: color 0.2s;
-}
-.sum-box.warm { border-color: #4ade80; background: #0a2a1a; }
-.sum-box.warm .sum-val { color: #4ade80; }
-.sum-box.hot  { border-color: #ffd200; background: #2a2200; animation: pulse 0.4s infinite alternate; }
-.sum-box.hot  .sum-val { color: #ffd200; }
-.sum-box.over { border-color: #f87171; background: #2a0a0a; }
-.sum-box.over .sum-val { color: #f87171; }
-
-@keyframes pulse {
-  from { box-shadow: 0 0 8px rgba(255,210,0,0.3); }
-  to   { box-shadow: 0 0 20px rgba(255,210,0,0.7); }
-}
-
-/* ── GAME WRAPPER ───────────────────────────── */
-#game-wrapper {
-  position: relative;
-  touch-action: none;
-}
-
-/* ── GRID ───────────────────────────────────── */
-#grid {
-  display: grid;
-  gap: 5px;
-}
-
-.cell {
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-weight: 900;
-  position: relative;
-  transition: transform 0.1s, box-shadow 0.1s, opacity 0.3s;
-  user-select: none;
-  border: 2px solid transparent;
-  gap: 1px;
-}
-.cell:hover:not(.eaten) { transform: scale(1.06); }
-.cell.selected {
-  border-color: #ffd200;
-  box-shadow: 0 0 14px rgba(255,210,0,0.65);
-  transform: scale(1.09);
-  z-index: 2;
-}
-.cell.eaten {
-  opacity: 0.18;
-  transform: scale(0.75);
-  pointer-events: none;
-  filter: grayscale(1);
-}
-.cell.respawn {
-  animation: pop 0.35s cubic-bezier(0.34,1.7,0.64,1) forwards;
-}
-.cell-num  { line-height: 1; font-weight: 900; }
-.cell-face { line-height: 1; }
-
-@keyframes pop {
-  from { transform: scale(0); opacity: 0; }
-  to   { transform: scale(1); opacity: 1; }
-}
-
-/* Number color palette */
-.v1  { background: #4f46e5; }
-.v2  { background: #7c3aed; }
-.v3  { background: #0891b2; }
-.v4  { background: #059669; }
-.v5  { background: #65a30d; }
-.v6  { background: #ca8a04; }
-.v7  { background: #dc2626; }
-.v8  { background: #db2777; }
-.v9  { background: #9333ea; }
-.v10 { background: #2563eb; }
-.v11 { background: #0d9488; }
-.v12 { background: #16a34a; }
-.v13 { background: #ea580c; }
-.v14 { background: #c026d3; }
-.v15 { background: #0284c7; }
-
-/* ── SEVEN CHARACTER ────────────────────────── */
-#seven {
-  position: absolute;
-  background: radial-gradient(circle at 40% 35%, #ff4444, #aa0000);
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-weight: 900;
+  border-radius: 18px;
+  padding: 30px 24px 24px;
+  width: 280px;
+  max-width: 92vw;
+  text-decoration: none;
   color: white;
-  z-index: 10;
-  pointer-events: none;
-  transition: left 0.38s cubic-bezier(0.34,1.4,0.64,1), top 0.38s cubic-bezier(0.34,1.4,0.64,1);
-  box-shadow: 0 0 18px rgba(220,38,38,0.7), 0 0 40px rgba(220,38,38,0.3);
-  border: 2px solid #ff6666;
-  line-height: 1;
-}
-#seven.eating {
-  animation: munch 0.25s;
-}
-#seven-face { transition: all 0.2s; }
-
-/* ── ANIMATIONS ─────────────────────────────── */
-@keyframes munch {
-  0%   { transform: scale(1) rotate(0); }
-  40%  { transform: scale(1.35) rotate(-8deg); }
-  70%  { transform: scale(1.25) rotate(6deg); }
-  100% { transform: scale(1) rotate(0); }
-}
-
-@keyframes seesaw {
-  0%,100% { transform: rotate(0deg); }
-  20%     { transform: rotate(-4deg); }
-  40%     { transform: rotate(3deg); }
-  60%     { transform: rotate(-3deg); }
-  80%     { transform: rotate(2deg); }
-}
-
-.seesaw { animation: seesaw 0.6s ease-in-out; }
-
-@keyframes escape-cell {
-  0%   { transform: scale(1.1); opacity: 1; }
-  60%  { transform: scale(1.5) translateY(-12px); opacity: 0.7; }
-  100% { transform: scale(0) translateY(-30px); opacity: 0; }
-}
-.escaping { animation: escape-cell 0.45s forwards !important; pointer-events: none; }
-
-@keyframes shake-cell {
-  0%,100% { transform: translateX(0); }
-  20%     { transform: translateX(-6px); }
-  40%     { transform: translateX(6px); }
-  60%     { transform: translateX(-4px); }
-  80%     { transform: translateX(4px); }
-}
-.shaking { animation: shake-cell 0.35s; }
-
-/* ── FLOATING SCORE ─────────────────────────── */
-.float-score {
-  position: fixed;
-  pointer-events: none;
-  font-size: 1.8rem;
-  font-weight: 900;
-  color: #ffd200;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
-  animation: floatUp 0.9s forwards;
-  z-index: 100;
-}
-@keyframes floatUp {
-  0%   { opacity: 1; transform: translateY(0) scale(1); }
-  100% { opacity: 0; transform: translateY(-70px) scale(1.4); }
-}
-
-/* ── OVERLAY MESSAGE ────────────────────────── */
-.overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.82);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 200;
-}
-.overlay-box {
-  background: #16213e;
-  border: 2px solid #ffd200;
-  border-radius: 20px;
-  padding: 36px 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
-  max-width: 360px;
-  width: 90%;
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+  opacity: 0;
+  animation: fadeUp 0.5s ease forwards;
 }
-.overlay-box h2 { font-size: 2.8rem; color: #ffd200; margin-bottom: 8px; }
-.overlay-box p  { color: #aaa; margin: 6px 0; line-height: 1.5; }
-.overlay-box .score-big { font-size: 2rem; color: white; font-weight: 900; margin: 12px 0; }
-.btn {
-  margin-top: 18px;
-  padding: 13px 34px;
-  background: #ffd200;
-  color: #0f0f1a;
-  border: none;
-  border-radius: 10px;
-  font-size: 1.1rem;
+.card:nth-child(1) { animation-delay: 0.05s; }
+.card:nth-child(2) { animation-delay: 0.15s; }
+.card:nth-child(3) { animation-delay: 0.25s; }
+.card:hover {
+  transform: translateY(-6px) scale(1.03);
+  border-color: #ffd200;
+  box-shadow: 0 0 26px rgba(255,210,0,0.35);
+}
+.card-icon {
+  font-size: 3.4rem;
+  line-height: 1;
+  margin-bottom: 14px;
+}
+.card-name {
+  font-size: 1.7rem;
   font-weight: 900;
-  cursor: pointer;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, #f7971e, #ffd200);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 5px;
+}
+.card-tag {
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #ffd200;
+  margin-bottom: 14px;
+}
+.card-desc {
+  font-size: 0.88rem;
+  color: #8a8aa0;
+  line-height: 1.55;
+  flex-grow: 1;
+}
+.card-play {
+  margin-top: 18px;
+  font-size: 0.8rem;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  color: #0f0f1a;
+  background: #ffd200;
+  padding: 9px 26px;
+  border-radius: 9px;
   transition: transform 0.1s;
 }
-.btn:hover { transform: scale(1.05); }
+.card:hover .card-play { transform: scale(1.07); }
 
-/* ── LEVEL BADGE ────────────────────────────── */
-#level-badge {
-  font-size: 0.8rem;
-  color: #888;
-  margin-bottom: 8px;
-  letter-spacing: 1px;
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-#level-badge span { color: #ffd200; font-weight: 700; }
 
-/* ── INSTRUCTIONS ───────────────────────────── */
-.instr {
-  margin-top: 14px;
+/* ── FOOTER ────────────────────────────────── */
+.footer {
+  margin-top: 40px;
+  font-size: 0.75rem;
   color: #444;
-  font-size: 0.8rem;
-  text-align: center;
-  max-width: 500px;
-  line-height: 1.6;
+  letter-spacing: 0.5px;
 }
-.instr strong { color: #666; }
 
-/* ── RESPONSIVE ─────────────────────────────── */
+/* ── RESPONSIVE ────────────────────────────── */
 @media (max-width: 520px) {
-  .title { font-size: 2.5rem; }
+  .title { font-size: 4.2rem; letter-spacing: -3px; }
+  .tagline { margin-bottom: 26px; }
 }
 </style>
 </head>
 <body>
 
-<h1 class="title">6÷7</h1>
-<p class="subtitle">WHY WAS 6 AFRAID OF 7?</p>
+<h1 class="title">67</h1>
+<p class="subtitle">Tres jocs · un número</p>
+<p class="tagline">Tria un joc per començar</p>
 
-<div class="hud">
-  <div class="hud-box">
-    <div class="hud-label">Punts</div>
-    <div class="hud-value" id="score-val">0</div>
-  </div>
-  <div class="sum-box" id="sum-box">
-    <div class="hud-label">Suma seleccionada</div>
-    <div class="sum-val" id="sum-val">0 / 67</div>
-  </div>
-  <div class="hud-box" id="timer-box">
-    <div class="hud-label">Temps</div>
-    <div class="hud-value" id="timer-val">67</div>
-  </div>
-  <div class="hud-box">
-    <div class="hud-label">Vides</div>
-    <div class="hud-value" id="lives-val">❤️❤️❤️</div>
-  </div>
+<div class="games">
+
+  <a class="card" href="eat-67.html">
+    <div class="card-icon">😈</div>
+    <div class="card-name">6÷7</div>
+    <div class="card-tag">Seven Ate Nine</div>
+    <p class="card-desc">Clica números que sumin exactament 67 per fer-los escapar… abans que el 7 se'ls mengi!</p>
+    <span class="card-play">Jugar</span>
+  </a>
+
+  <a class="card" href="matricules.html">
+    <div class="card-icon">🚗</div>
+    <div class="card-name">Matrí-67</div>
+    <div class="card-tag">El joc de les matrícules</div>
+    <p class="card-desc">Combina els dígits de la matrícula amb +, −, ×, ÷ fins a arribar a 67.</p>
+    <span class="card-play">Jugar</span>
+  </a>
+
+  <a class="card" href="memory.html">
+    <div class="card-icon">🥚</div>
+    <div class="card-name">Memory 67</div>
+    <div class="card-tag">Ous de Pasqua</div>
+    <p class="card-desc">Gira les cartes i troba les parelles d'ous que sumin 67.</p>
+    <span class="card-play">Jugar</span>
+  </a>
+
 </div>
 
-<div id="level-badge">Nivell <span id="level-num">1</span> &nbsp;·&nbsp; Combo <span id="combo-num">×1</span></div>
+<footer class="footer">© 2026 Pau Borrell</footer>
 
-<div id="game-wrapper">
-  <div id="grid"></div>
-  <div id="seven"><span id="seven-num" style="font-size:1.5rem">7</span><span id="seven-face" style="font-size:0.75rem">😈</span></div>
-</div>
-
-<p class="instr">
-  Clica números que sumin exactament <strong>67</strong> per fer-los escapar.<br>
-  El 7 es mou pel taulell i <strong>menja</strong> els números!<br>
-  Si passes de 67 perds una vida. Combo = més punts.
-</p>
-
-<script>
-// ── CONFIG ──────────────────────────────────────────────────────
-const COLS       = 8;
-const ROWS       = 8;
-const TARGET     = 67;
-const BASE_SPEED = 1900; // ms between Seven moves (level 1)
-const MIN_SPEED  = 550;
-const RESPAWN_MS = 2800;
-
-const NUM_FACES  = [
-  '', // 0 unused
-  '😄','🙂','😎','😁','🤓','😮','😦','😨', // 1-8
-  '😲','🥳','😛','🤪','😬','😏','🤗','😯'  // 9-15
-];
-const SEVEN_FACES_IDLE   = ['😈','😏','👀','😤'];
-const SEVEN_FACES_EATING = ['😋','🤤','👅'];
-
-// ── STATE ────────────────────────────────────────────────────────
-let grid     = [];   // grid[r][c] = { value, selected, eaten }
-let selected = [];   // [{r,c}]
-let score    = 0;
-let lives    = 3;
-let combo    = 1;
-let successes= 0;
-let gameRunning = false;
-let sevenPos = { r:0, c:0 };
-let sevenTimer;
-let timerInterval;
-let timeLeft = 67;
-let cellSize, gridGap;
-
-// ── INIT & RESPONSIVE ────────────────────────────────────────────
-function calcLayout() {
-  const maxW = Math.min(window.innerWidth - 20, 560);
-  cellSize = Math.floor((maxW - (COLS - 1) * 5) / COLS);
-  cellSize = Math.max(40, Math.min(cellSize, 68));
-  gridGap  = 5;
-  document.getElementById('grid').style.gridTemplateColumns =
-    `repeat(${COLS}, ${cellSize}px)`;
-  document.getElementById('grid').style.gridTemplateRows =
-    `repeat(${ROWS}, ${cellSize}px)`;
-  // update seven size
-  const s = document.getElementById('seven');
-  s.style.width  = cellSize + 'px';
-  s.style.height = cellSize + 'px';
-  document.getElementById('seven-num').style.fontSize = (cellSize * 0.35) + 'px';
-  document.getElementById('seven-face').style.fontSize = (cellSize * 0.2) + 'px';
-  // update cell fonts
-  document.querySelectorAll('.cell-num').forEach(el => {
-    el.style.fontSize = (cellSize * 0.36) + 'px';
-  });
-  document.querySelectorAll('.cell-face').forEach(el => {
-    el.style.fontSize = (cellSize * 0.22) + 'px';
-  });
-  // reposition seven
-  positionSeven(false);
-}
-
-function cellTop(r) { return r * (cellSize + gridGap); }
-function cellLeft(c) { return c * (cellSize + gridGap); }
-
-// ── BUILD GRID ───────────────────────────────────────────────────
-function buildGrid() {
-  const el = document.getElementById('grid');
-  el.innerHTML = '';
-  grid = [];
-  for (let r = 0; r < ROWS; r++) {
-    grid[r] = [];
-    for (let c = 0; c < COLS; c++) {
-      const val = rndVal();
-      const div = document.createElement('div');
-      div.className = `cell v${val}`;
-      div.dataset.r = r;
-      div.dataset.c = c;
-      div.innerHTML = cellHTML(val);
-      div.style.width  = cellSize + 'px';
-      div.style.height = cellSize + 'px';
-      el.appendChild(div);
-      grid[r][c] = { value: val, selected: false, eaten: false, el: div };
-    }
-  }
-  // Event delegation
-  el.addEventListener('click', onGridClick);
-}
-
-function cellHTML(val) {
-  return `<span class="cell-num" style="font-size:${cellSize*0.36}px">${val}</span>`
-       + `<span class="cell-face" style="font-size:${cellSize*0.22}px">${NUM_FACES[val]}</span>`;
-}
-
-function rndVal() {
-  return Math.floor(Math.random() * 15) + 1; // 1-15
-}
-
-// ── CELL CLICK ───────────────────────────────────────────────────
-function onGridClick(e) {
-  if (!gameRunning) return;
-  const div = e.target.closest('.cell');
-  if (!div) return;
-  const r = +div.dataset.r;
-  const c = +div.dataset.c;
-  const cell = grid[r][c];
-  if (cell.eaten || div.classList.contains('escaping')) return;
-
-  if (cell.selected) {
-    deselect(r, c);
-  } else {
-    selectCell(r, c);
-  }
-  refreshSumDisplay();
-}
-
-function selectCell(r, c) {
-  const cell = grid[r][c];
-  cell.selected = true;
-  cell.el.classList.add('selected');
-  selected.push({ r, c });
-}
-
-function deselect(r, c) {
-  const cell = grid[r][c];
-  cell.selected = false;
-  cell.el.classList.remove('selected');
-  selected = selected.filter(s => !(s.r === r && s.c === c));
-}
-
-function clearAllSelection(shake) {
-  [...selected].forEach(s => {
-    grid[s.r][s.c].selected = false;
-    if (shake) grid[s.r][s.c].el.classList.add('shaking');
-    grid[s.r][s.c].el.classList.remove('selected');
-  });
-  if (shake) setTimeout(() => {
-    document.querySelectorAll('.shaking').forEach(el => el.classList.remove('shaking'));
-  }, 400);
-  selected = [];
-}
-
-function currentSum() {
-  return selected.reduce((s, pos) => s + grid[pos.r][pos.c].value, 0);
-}
-
-// ── SUM DISPLAY ──────────────────────────────────────────────────
-function refreshSumDisplay() {
-  const sum  = currentSum();
-  const box  = document.getElementById('sum-box');
-  const val  = document.getElementById('sum-val');
-  val.textContent = `${sum} / ${TARGET}`;
-
-  box.className = 'sum-box';
-  if (sum === TARGET)      { box.classList.add('hot'); onSuccess(sum); }
-  else if (sum > TARGET)   { box.classList.add('over'); onOver(); }
-  else if (sum >= TARGET - 8) { box.classList.add('warm'); }
-
-  document.getElementById('combo-num').textContent = `×${combo}`;
-}
-
-// ── SUCCESS ───────────────────────────────────────────────────────
-function onSuccess() {
-  const toEscape = [...selected];
-  // Animate escape
-  toEscape.forEach(pos => grid[pos.r][pos.c].el.classList.add('escaping'));
-
-  // Seesaw on wrapper
-  const wrap = document.getElementById('game-wrapper');
-  wrap.classList.remove('seesaw');
-  void wrap.offsetWidth;
-  wrap.classList.add('seesaw');
-  wrap.addEventListener('animationend', () => wrap.classList.remove('seesaw'), { once: true });
-
-  // Bonus time: +7s per 67 completat (cap at 67)
-  timeLeft = Math.min(67, timeLeft + 7);
-  refreshTimerDisplay();
-
-  // Points
-  const pts = 10 * combo;
-  score += pts;
-  successes++;
-  combo++;
-  document.getElementById('score-val').textContent = score;
-  document.getElementById('combo-num').textContent = `×${combo}`;
-  showFloatScore(pts, toEscape[0]);
-
-  // Respawn escaped cells
-  setTimeout(() => {
-    toEscape.forEach(pos => {
-      const cell = grid[pos.r][pos.c];
-      cell.selected = false;
-      const newVal = rndVal();
-      cell.value   = newVal;
-      cell.eaten   = false;
-      cell.el.className = `cell v${newVal} respawn`;
-      cell.el.style.width  = cellSize + 'px';
-      cell.el.style.height = cellSize + 'px';
-      cell.el.innerHTML = cellHTML(newVal);
-      cell.el.addEventListener('animationend', () => cell.el.classList.remove('respawn'), { once: true });
-    });
-    selected = [];
-    refreshSumDisplay();
-    updateLevel();
-  }, 450);
-}
-
-function onOver() {
-  loseLife();
-  clearAllSelection(true);
-  combo = 1;
-  setTimeout(refreshSumDisplay, 50);
-}
-
-// ── LIVES ─────────────────────────────────────────────────────────
-function loseLife() {
-  lives--;
-  const el = document.getElementById('lives-val');
-  if (lives === 2)     el.textContent = '❤️❤️';
-  else if (lives === 1) el.textContent = '❤️';
-  else if (lives <= 0) { el.textContent = '💀'; endGame(); }
-}
-
-// ── SEVEN ─────────────────────────────────────────────────────────
-function positionSeven(animate = true) {
-  const s = document.getElementById('seven');
-  if (!animate) s.style.transition = 'none';
-  s.style.top  = cellTop(sevenPos.r)  + 'px';
-  s.style.left = cellLeft(sevenPos.c) + 'px';
-  if (!animate) requestAnimationFrame(() => { s.style.transition = ''; });
-}
-
-function moveSeven() {
-  if (!gameRunning) return;
-
-  // Possible moves
-  const { r, c } = sevenPos;
-  const moves = [];
-  if (r > 0)          moves.push({ r: r-1, c });
-  if (r < ROWS-1)     moves.push({ r: r+1, c });
-  if (c > 0)          moves.push({ r, c: c-1 });
-  if (c < COLS-1)     moves.push({ r, c: c+1 });
-
-  // Chase selected cells with 50% probability
-  let next;
-  if (selected.length > 0 && Math.random() < 0.55) {
-    const prey = selected[Math.floor(Math.random() * selected.length)];
-    next = moves.reduce((best, m) => {
-      const dM = Math.abs(m.r - prey.r) + Math.abs(m.c - prey.c);
-      const dB = Math.abs(best.r - prey.r) + Math.abs(best.c - prey.c);
-      return dM < dB ? m : best;
-    });
-  } else {
-    next = moves[Math.floor(Math.random() * moves.length)];
-  }
-
-  sevenPos = next;
-  positionSeven();
-  eatCell(sevenPos.r, sevenPos.c);
-
-  // Random face change
-  document.getElementById('seven-face').textContent =
-    SEVEN_FACES_IDLE[Math.floor(Math.random() * SEVEN_FACES_IDLE.length)];
-}
-
-function eatCell(r, c) {
-  const cell = grid[r][c];
-  if (cell.eaten) return;
-
-  // Eating animation on Seven
-  const s = document.getElementById('seven');
-  s.classList.remove('eating');
-  void s.offsetWidth;
-  s.classList.add('eating');
-  document.getElementById('seven-face').textContent =
-    SEVEN_FACES_EATING[Math.floor(Math.random() * SEVEN_FACES_EATING.length)];
-  s.addEventListener('animationend', () => {
-    document.getElementById('seven-face').textContent =
-      SEVEN_FACES_IDLE[Math.floor(Math.random() * SEVEN_FACES_IDLE.length)];
-  }, { once: true });
-
-  // If cell was selected, remove from selection (no life lost)
-  if (cell.selected) {
-    deselect(r, c);
-    combo = 1; // reset combo – disruption!
-    refreshSumDisplay();
-  }
-
-  cell.eaten = true;
-  cell.el.classList.add('eaten');
-
-  // Respawn
-  setTimeout(() => {
-    if (!gameRunning) return;
-    const newVal = rndVal();
-    cell.value   = newVal;
-    cell.eaten   = false;
-    cell.selected = false;
-    cell.el.className = `cell v${newVal} respawn`;
-    cell.el.style.width  = cellSize + 'px';
-    cell.el.style.height = cellSize + 'px';
-    cell.el.innerHTML = cellHTML(newVal);
-    cell.el.addEventListener('animationend', () => cell.el.classList.remove('respawn'), { once: true });
-  }, RESPAWN_MS);
-}
-
-// ── TIMER ─────────────────────────────────────────────────────────
-function startTimer() {
-  clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    if (!gameRunning) return;
-    timeLeft--;
-    refreshTimerDisplay();
-    if (timeLeft <= 0) endGame('time');
-  }, 1000);
-}
-
-function refreshTimerDisplay() {
-  const el  = document.getElementById('timer-val');
-  const box = document.getElementById('timer-box');
-  el.textContent = timeLeft;
-  box.className  = 'hud-box';
-  if (timeLeft <= 5)       box.classList.add('urgent');
-  else if (timeLeft <= 15) box.classList.add('warning');
-}
-
-// ── LEVEL / SPEED ─────────────────────────────────────────────────
-function currentSpeed() {
-  const level = Math.floor(successes / 5);
-  return Math.max(MIN_SPEED, BASE_SPEED - level * 180);
-}
-
-function currentLevel() {
-  return Math.floor(successes / 5) + 1;
-}
-
-function updateLevel() {
-  document.getElementById('level-num').textContent = currentLevel();
-  // Restart timer with new speed
-  clearInterval(sevenTimer);
-  sevenTimer = setInterval(moveSeven, currentSpeed());
-}
-
-// ── FLOAT SCORE ───────────────────────────────────────────────────
-function showFloatScore(pts, pos) {
-  const gridEl = document.getElementById('grid');
-  const rect   = gridEl.getBoundingClientRect();
-  const top    = rect.top  + cellTop(pos.r)  + window.scrollY;
-  const left   = rect.left + cellLeft(pos.c) + window.scrollX;
-
-  const el = document.createElement('div');
-  el.className = 'float-score';
-  el.textContent = `+${pts}`;
-  el.style.top  = top + 'px';
-  el.style.left = left + 'px';
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 900);
-}
-
-// ── GAME FLOW ─────────────────────────────────────────────────────
-function startGame() {
-  document.querySelectorAll('.overlay').forEach(o => o.remove());
-  score = 0; lives = 3; combo = 1; successes = 0; timeLeft = 67;
-  selected = []; gameRunning = false;
-  clearInterval(sevenTimer);
-  clearInterval(timerInterval);
-
-  document.getElementById('score-val').textContent = '0';
-  document.getElementById('lives-val').textContent = '❤️❤️❤️';
-  document.getElementById('level-num').textContent = '1';
-  document.getElementById('combo-num').textContent = '×1';
-  refreshTimerDisplay();
-
-  calcLayout();
-  buildGrid();
-
-  // Place Seven at a corner
-  sevenPos = { r: 0, c: 0 };
-  positionSeven(false);
-
-  gameRunning = true;
-  sevenTimer  = setInterval(moveSeven, currentSpeed());
-  startTimer();
-  refreshSumDisplay();
-}
-
-function endGame(reason = 'lives') {
-  gameRunning = false;
-  clearInterval(sevenTimer);
-  clearInterval(timerInterval);
-
-  const isTime = reason === 'time';
-  const ov = document.createElement('div');
-  ov.className = 'overlay';
-  ov.innerHTML = `
-    <div class="overlay-box">
-      <h2>${isTime ? '⏰ Temps!' : '💀 Game Over!'}</h2>
-      <p>${isTime ? 'El rellotge ha marcat 0...' : 'El 7 t\'ha menjat els números...'}</p>
-      <div class="score-big">🏆 ${score} punts</div>
-      <p style="color:#666;font-size:0.85rem">Nivell assolit: ${currentLevel()} · Millor combo: ×${combo}</p>
-      <button class="btn" onclick="startGame()">Tornar a jugar</button>
-    </div>`;
-  document.body.appendChild(ov);
-}
-
-// ── WELCOME SCREEN ────────────────────────────────────────────────
-function showWelcome() {
-  calcLayout();
-  buildGrid();
-  sevenPos = { r: 3, c: 3 };
-  positionSeven(false);
-
-  const ov = document.createElement('div');
-  ov.className = 'overlay';
-  ov.innerHTML = `
-    <div class="overlay-box">
-      <h2 style="font-size:3.5rem">6÷7</h2>
-      <p style="color:#ffd200;font-size:1rem;margin:4px 0">Because 7 ate 9!</p>
-      <p style="margin:14px 0 6px">Selecciona números al taulell que<br>sumin exactament <strong style="color:#ffd200;font-size:1.2em">67</strong>.</p>
-      <p style="color:#888;font-size:0.85rem">El 7 és malèfic i els anirà menjant.<br>Si passes de 67 perds una vida.</p>
-      <button class="btn" onclick="startGame()">Jugar!</button>
-    </div>`;
-  document.body.appendChild(ov);
-}
-
-window.addEventListener('resize', () => {
-  if (gameRunning) calcLayout();
-});
-
-showWelcome();
-</script>
 </body>
 </html>
