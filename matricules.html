@@ -486,6 +486,9 @@ const MAX_LIVES    = 10;
 const CONSONANTS   = 'BCDFGHJKLMNPRSTVWXYZ';
 const SOLN_CACHE   = new Map();
 const FUNNY_PROB   = 0.25;
+// Fraction of plates with NO solution — keeps impossibles a minority.
+const IMPOSSIBLE_PROB = 0.2;   // ~1 in 5 plates is impossible
+const MAX_GEN_TRIES   = 60;    // rejection-sampling safety cap
 const FUNNY_PLATES = [
   'BRO','SIS','WTF','LOL','OMG','FBI','CIA','KGB','WOW','FUN',
   'BOT','WIN','GOD','DAD','MOM','DOG','CAT','YOU','ASS','FAQ',
@@ -620,7 +623,17 @@ function formatSolution(sol) {
 
 // ── PLATE GENERATION ──────────────────────────────────────────
 function genPlate() {
-  const digits = Array.from({length:4}, () => Math.floor(Math.random()*10));
+  // Decide up front whether this plate should be solvable, then draw
+  // random digits until we get that kind (rejection sampling). This
+  // keeps impossible plates a minority — see IMPOSSIBLE_PROB.
+  const wantSolvable = Math.random() >= IMPOSSIBLE_PROB;
+  let digits, sol;
+  for (let t = 0; t < MAX_GEN_TRIES; t++) {
+    digits = Array.from({length:4}, () => Math.floor(Math.random()*10));
+    sol = solve(digits);
+    if ((sol !== null) === wantSolvable) break;
+  }
+
   let letters, isFunny = false;
   if (Math.random() < FUNNY_PROB) {
     letters = FUNNY_PLATES[Math.floor(Math.random() * FUNNY_PLATES.length)];
@@ -631,7 +644,6 @@ function genPlate() {
       letters += CONSONANTS[Math.floor(Math.random()*CONSONANTS.length)];
     }
   }
-  const sol = solve(digits);
   return { digits, letters, isFunny, solvable: sol !== null, solution: sol };
 }
 
